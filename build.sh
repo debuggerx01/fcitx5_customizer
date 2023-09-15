@@ -2,13 +2,15 @@
 
 copy_file_and_zip() {
   cp ../assets/"$1" ./"$2"
+  touch -t "202309150000" ./"$2"
   zip "$3".zip "$2"
   rm ./"$2"
 }
 
 copy_dir_and_zip() {
   cp -r ../assets/"$1" ./"$1"
-  zip -r "$1".zip "$1"
+  find ./"$1" -exec touch -t "202309150000" '{}' \;
+  zip -r -D -X -9 -A --compression-method deflate "$1".zip "$1"
   rm -r ./"$1"
 }
 
@@ -26,3 +28,4 @@ copy_dir_and_zip sogou_dict
 copy_dir_and_zip uppercase_addon
 copy_dir_and_zip 星空黑
 
+cp ../fcitx5_customizer.sh ./fcitx5_customizer.sh
