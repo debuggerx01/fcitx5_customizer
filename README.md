@@ -7,4 +7,7 @@ bash fcitx5_customizer.sh
 
 # 使用推荐配置
 bash fcitx5_customizer.sh recommend
+
+# 在线运行
+bash -c "$(curl -fsSL https://www.debuggerx.com/fcitx5_customizer/fcitx5_customizer.sh)"
 ```
