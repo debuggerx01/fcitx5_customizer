@@ -27,7 +27,26 @@ function select_skin {
   fi
 }
 
+# params: <选择框提示语> <初始选中的项目> <项目1> <项目2> …
+# return: 选择的项目的下标
+function select_from_array() {
+  local TITLE=$1
+  shift
+  local DEFAULT_ITEM=$1
+  shift
+  OPTS=()
+  INDEX=0
+  for ITEM in $@ ; do
+    (( INDEX++ )) || true
+    OPTS+=("$INDEX" "$ITEM")
+  done
+  ITEM=$(dialog --stdout --default-item "$DEFAULT_ITEM" --menu "$TITLE" 0 0 0 "${OPTS[@]}")
+  echo "$((${ITEM:-0} - 1))"
+}
+
 # 检查软件包是否已安装
+# params: <检查的包名>
+# return: 0-已安装 1-未安装
 function check_installed() {
   local RES
   RES="$(dpkg-query -W -f='${Status}' "$1")"
@@ -35,6 +54,17 @@ function check_installed() {
     return 0
   fi
   return 1
+}
+
+# 检查包，未安装则执行安装
+# params: <包名> <包的中文名>
+function check_and_install() {
+  if check_installed "$1"; then
+    echo "$2已安装"
+  else
+    echo "安装$2"
+    sudo apt install "$1"
+  fi
 }
 
 # 配置云拼音
@@ -81,8 +111,8 @@ OPTIONS=$(dialog --stdout --checklist "请使用上下方向键移动选项，�
 导入精选搜狗细胞词库 导入部分来自搜狗的精选细胞词库 "${FLAGS[2]}" \
 开启云拼音 基于百度的云拼音，默认在第二个候选词位置 "${FLAGS[3]}" \
 竖排显示 不勾选则为横向显示候选词 "${FLAGS[4]}" \
-'(1/2)候选词数量5' [二选一]不勾选则为默认值7 "${FLAGS[5]}" \
-'(2/2)候选词数量10' [二选一]不勾选则为默认值7 "${FLAGS[6]}" \
+修改候选词数量 进入候选词数量选择页面 "${FLAGS[5]}" \
+修改字体大小 进入输入法字体大小选择页面 "${FLAGS[6]}" \
 修改默认加减号翻页 快速输入时生效，默认为上下方向键 "${FLAGS[7]}" \
 关闭预编辑 关闭在程序中显示输入中的拼音功能 "${FLAGS[8]}" \
 开启数字键盘选词 使用数字小键盘选词 "${FLAGS[9]}" \
@@ -98,7 +128,7 @@ OPTIONS=$(dialog --stdout --checklist "请使用上下方向键移动选项，�
 安装皮肤-solarized 'Solarized主题(暗青)' "${FLAGS[19]}" \
 '安装皮肤-简约黑/白' 'Maicss专为深度制作的主题' "${FLAGS[20]}" \
 安装皮肤-dracula 'drbbr制作的德古拉主题' "${FLAGS[21]}" \
-选择皮肤 "进入皮肤选择列表(新皮肤安装时会自动进入)" "${FLAGS[22]}" \
+选择皮肤 "进入皮肤选择页面(新皮肤安装时会自动进入)" "${FLAGS[22]}" \
 )
 
 clear
@@ -119,12 +149,7 @@ SKIN_SELECT=false
 for OPTION in $OPTIONS ; do
   case $OPTION in
   安装搜狗词库)
-    if check_installed fcitx5-pinyin-sougou; then
-      echo '搜狗词库已安装'
-    else
-      echo '安装搜狗词库'
-      sudo apt install fcitx5-pinyin-sougou
-    fi
+    check_and_install fcitx5-pinyin-sougou "搜狗词库"
     ;;
   导入中文维基词库)
     echo 'todo:导入中文维基词库'
@@ -133,22 +158,30 @@ for OPTION in $OPTIONS ; do
     echo 'todo:导入精选搜狗细胞词库'
     ;;
   开启云拼音)
-    if check_installed fcitx5-module-cloudpinyin; then
-      echo '云拼音组件已安装'
-    else
-      echo '安装云拼音'
-      sudo apt install fcitx5-module-cloudpinyin
-    fi
+    check_and_install fcitx5-module-cloudpinyin "云拼音组件"
     echo '配置云拼音'
     config_cloudpinyin
     ;;
   竖排显示)
     VERTICAL_CANDIDATE_LIST=true
     ;;
-  *候选词数量5*)
-    PAGE_SIZE=5
+  修改候选词数量)
+    SELECTED_INDEX=$(select_from_array '请选择候选词数量' 3 \
+      '5个候选词，建议竖排模式下使用' \
+      '7个候选词，这是Fcitx5拼音的默认数量' \
+      '10个候选词，建议横排模式使用' \
+    )
+
+    if [ "${SELECTED_INDEX:-0}" -ge "0" ]; then
+      PAGE_SIZES=(5 7 10)
+      PAGE_SIZE=${PAGE_SIZES[$SELECTED_INDEX]}
+      # 设置候选词数量，同时修改默认候选词数量和拼音候选词数量
+      sed -i "s/DefaultPageSize.*/DefaultPageSize=$PAGE_SIZE/" ~/.config/fcitx5/config
+      sed -i "s/PageSize.*/PageSize=$PAGE_SIZE/" ~/.config/fcitx5/conf/pinyin.conf
+      echo "已设置候选词数量为$PAGE_SIZE"
+    fi
   ;;
-  *候选词数量10*)
+  修改字体大小)
     PAGE_SIZE=10
   ;;
   修改默认加减号翻页)
@@ -170,12 +203,7 @@ for OPTION in $OPTIONS ; do
     echo 'todo:配置特殊符号'
   ;;
   安装Emoji支持组件)
-    if check_installed fcitx5-module-emoji; then
-      echo 'Emoji支持组件已安装'
-    else
-      echo '安装Emoji支持组件'
-      sudo apt install fcitx5-module-emoji
-    fi
+    check_and_install fcitx5-module-emoji "Emoji支持组件"
   ;;
   大写时关闭拼音输入)
     echo 'todo:大写时关闭拼音输入'
@@ -223,10 +251,6 @@ else
   echo "已设置候选词为横向显示"
 fi
 
-# 设置候选词数量，同时修改默认候选词数量和拼音候选词数量
-sed -i "s/DefaultPageSize.*/DefaultPageSize=$PAGE_SIZE/" ~/.config/fcitx5/config
-sed -i "s/PageSize.*/PageSize=$PAGE_SIZE/" ~/.config/fcitx5/conf/pinyin.conf
-echo "已设置候选词数量为$PAGE_SIZE"
 
 if [ ${#SELECTED_SKIN} -gt 0 ]; then
   sed -i "s/Theme.*/Theme=$SELECTED_SKIN/" ~/.config/fcitx5/conf/classicui.conf
