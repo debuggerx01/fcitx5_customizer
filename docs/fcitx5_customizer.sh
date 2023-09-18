@@ -199,6 +199,8 @@ for OPTION in $OPTIONS ; do
     )
 
     if [ "${SELECTED_INDEX:-0}" -ge "0" ]; then
+      # 先退出Fcitx，避免修改的配置被运行中的进程恢复
+      fcitx5-remote -e
       PAGE_SIZES=(5 7 10)
       PAGE_SIZE=${PAGE_SIZES[$SELECTED_INDEX]}
       # 设置候选词数量，同时修改默认候选词数量和拼音候选词数量
