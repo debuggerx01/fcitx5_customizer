@@ -38,6 +38,15 @@ function change_config() {
   fi
 }
 
+# params: <匹配行> <替换行> <文件不存在时的内容> <配置文件路径>
+function change_config_next_line() {
+  if [ -f "$4" ] &&  < "$4" grep -q "$1" ; then
+    sed -i "/$1/{n;s/.*/$2/}" "$4"
+  else
+    echo -e "$3" >> "$4"
+  fi
+}
+
 # params: <zip包名> <中文名> <解压路径>
 function download_and_unzip() {
   echo "开始下载$2[$BASE_URL$1]"
@@ -230,6 +239,8 @@ for OPTION in $OPTIONS ; do
     fi
   ;;
   修改默认加减号翻页)
+    change_config_next_line "\[Hotkey\/PrevPage\]" "0\=minus" "[Hotkey/PrevPage]\n0=minus" ~/.config/fcitx5/config
+    change_config_next_line "\[Hotkey\/NextPage\]" "0\=equal" "[Hotkey/NextPage]\n0=equal" ~/.config/fcitx5/config
     echo 'todo:修改默认加减号翻页'
   ;;
   关闭预编辑)
