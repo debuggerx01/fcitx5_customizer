@@ -294,16 +294,16 @@ fcitx5-remote -e
 
 # 设置是否为竖排模式
 if $VERTICAL_CANDIDATE_LIST; then
-  sed -i "s/Vertical Candidate List.*/Vertical Candidate List=True/" ~/.config/fcitx5/conf/classicui.conf
+  change_config 'Vertical Candidate List' 'True' ~/.config/fcitx5/conf/classicui.conf
   echo "已设置候选词为竖排显示"
 else
-  sed -i "s/Vertical Candidate List.*/Vertical Candidate List=False/" ~/.config/fcitx5/conf/classicui.conf
+  change_config 'Vertical Candidate List' 'False' ~/.config/fcitx5/conf/classicui.conf
   echo "已设置候选词为横向显示"
 fi
 
 
 if [ ${#SELECTED_SKIN} -gt 0 ]; then
-  sed -i "s/Theme.*/Theme=$SELECTED_SKIN/" ~/.config/fcitx5/conf/classicui.conf
+  change_config 'Theme' "$SELECTED_SKIN" ~/.config/fcitx5/conf/classicui.conf
   echo "已设置皮肤为[$SELECTED_SKIN]"
 fi
 
