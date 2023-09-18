@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+BASE_URL="https://www.debuggerx.com/fcitx5_customizer/"
+
 SELECTED_SKIN=''
 
 function select_skin {
@@ -27,16 +29,38 @@ function select_skin {
   fi
 }
 
+# params: <key> <value> <配置文件路径>
+function change_config() {
+  if [ -f "$3" ] &&  < "$3" grep -q "$1" ; then
+    sed -i "s/$1.*/$1=$2/" "$3"
+  else
+    echo "$1=$2" >> "$3"
+  fi
+}
+
+# params: <zip包名> <中文名> <解压路径>
+function download_and_unzip() {
+  echo "开始下载$2[$BASE_URL$1]"
+  curl -o /tmp/"$1" "$BASE_URL$1"
+  if [ -f /tmp/"$1" ]; then
+    echo "$2下载成功"
+  fi
+  mkdir -p "$3"
+  unzip -q /tmp/"$1" -d "$3"
+  echo "$2安装成功"
+}
+
 # params: <选择框提示语> <初始选中的项目> <项目1> <项目2> …
 # return: 选择的项目的下标
 function select_from_array() {
-  local TITLE=$1
+  local TITLE OPTS INDEX ITEM
+  TITLE=$1
   shift
   local DEFAULT_ITEM=$1
   shift
   OPTS=()
   INDEX=0
-  for ITEM in $@ ; do
+  for ITEM in "$@" ; do
     (( INDEX++ )) || true
     OPTS+=("$INDEX" "$ITEM")
   done
@@ -69,7 +93,7 @@ function check_and_install() {
 
 # 配置云拼音
 function config_cloudpinyin() {
-  sed -i "s/CloudPinyinEnabled.*/CloudPinyinEnabled=True/" ~/.config/fcitx5/conf/pinyin.conf
+  change_config 'CloudPinyinEnabled' 'True' ~/.config/fcitx5/conf/pinyin.conf
   cat << EOF > ~/.config/fcitx5/conf/cloudpinyin.conf
 # 最小拼音长度
 MinimumPinyinLength=2
@@ -152,10 +176,13 @@ for OPTION in $OPTIONS ; do
     check_and_install fcitx5-pinyin-sougou "搜狗词库"
     ;;
   导入中文维基词库)
-    echo 'todo:导入中文维基词库'
+    download_and_unzip 'zhwiki.zip' '中文维基词库' ~/.local/share/fcitx5/pinyin/dictionaries
     ;;
   导入精选搜狗细胞词库)
-    echo 'todo:导入精选搜狗细胞词库'
+    download_and_unzip 'sogou_dict.zip' '精选搜狗细胞词库' ~/.local/share/fcitx5/pinyin/dictionaries
+    mv ~/.local/share/fcitx5/pinyin/dictionaries/sogou_dict/* ~/.local/share/fcitx5/pinyin/dictionaries
+    rm -r ~/.local/share/fcitx5/pinyin/dictionaries/sogou_dict
+    exit
     ;;
   开启云拼音)
     check_and_install fcitx5-module-cloudpinyin "云拼音组件"
@@ -176,24 +203,47 @@ for OPTION in $OPTIONS ; do
       PAGE_SIZES=(5 7 10)
       PAGE_SIZE=${PAGE_SIZES[$SELECTED_INDEX]}
       # 设置候选词数量，同时修改默认候选词数量和拼音候选词数量
-      sed -i "s/DefaultPageSize.*/DefaultPageSize=$PAGE_SIZE/" ~/.config/fcitx5/config
-      sed -i "s/PageSize.*/PageSize=$PAGE_SIZE/" ~/.config/fcitx5/conf/pinyin.conf
+      change_config 'DefaultPageSize' "$PAGE_SIZE" ~/.config/fcitx5/config
+      change_config 'PageSize' "$PAGE_SIZE" ~/.config/fcitx5/conf/pinyin.conf
       echo "已设置候选词数量为$PAGE_SIZE"
     fi
   ;;
   修改字体大小)
-    PAGE_SIZE=10
+    SELECTED_INDEX=$(select_from_array '请选择候选词数量' 3 \
+      '8' \
+      '10' \
+      '12' \
+      '14' \
+      '16' \
+      '18' \
+      '20' \
+      '22' \
+      '24' \
+    )
+
+    if [ "${SELECTED_INDEX:-0}" -ge "0" ]; then
+      FONT_SIZES=(8 10 12 14 16 18 20 22 24)
+      FONT_SIZE=${FONT_SIZES[$SELECTED_INDEX]}
+      echo "todo: 修改字体大小"
+      echo "已修改字体大小为$FONT_SIZE"
+    fi
   ;;
   修改默认加减号翻页)
     echo 'todo:修改默认加减号翻页'
   ;;
   关闭预编辑)
-    echo 'todo:关闭预编辑'
+    change_config 'PreeditEnabledByDefault' "False" ~/.config/fcitx5/config
+    change_config 'PreeditInApplication' "False" ~/.config/fcitx5/conf/pinyin.conf
+    echo '已关闭预编辑'
   ;;
   开启数字键盘选词)
-    echo 'todo:开启数字键盘选词'
+    change_config 'UseKeypadAsSelection' "False" ~/.config/fcitx5/conf/pinyin.conf
+    echo '已开启数字键盘选词'
   ;;
   禁用不常用快捷键)
+    change_config 'TriggerKey' "" ~/.config/fcitx5/conf/unicode.conf
+    change_config 'DirectUnicodeMode' "" ~/.config/fcitx5/conf/unicode.conf
+    change_config '0' "" ~/.config/fcitx5/conf/cloudpinyin.conf
     echo 'todo:禁用不常用快捷键'
   ;;
   优化中文标点)
@@ -209,25 +259,26 @@ for OPTION in $OPTIONS ; do
     echo 'todo:大写时关闭拼音输入'
   ;;
   *星空黑)
-    echo 'todo:星空黑'
+    download_and_unzip '星空黑.zip' '皮肤-星空黑' ~/.local/share/fcitx5/themes
     ;;
   *breeze)
-    echo 'todo:breeze'
+    check_and_install fcitx5-breeze '皮肤-breeze'
     ;;
   *material*)
-    echo 'todo:material'
+    check_and_install fcitx5-material-color '皮肤-material-color'
     ;;
   *nord)
-    echo 'todo:nord'
+    check_and_install fcitx5-nord '皮肤-nord'
     ;;
   *solarized)
-    echo 'todo:solarized'
+    check_and_install fcitx5-solarized '皮肤-solarized'
     ;;
   *简约黑*)
-    echo 'todo:简约黑'
+    download_and_unzip 'Simple-dark.zip' '皮肤-简约黑' ~/.local/share/fcitx5/themes
+    download_and_unzip 'Simple-white.zip' '皮肤-简约白' ~/.local/share/fcitx5/themes
     ;;
   *dracula)
-    echo 'todo:dracula'
+    download_and_unzip 'dracula.zip' '皮肤-dracula' ~/.local/share/fcitx5/themes
     ;;
   选择皮肤)
     SKIN_SELECT=true

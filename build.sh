@@ -22,10 +22,11 @@ cd ./docs || exit 1
 
 copy_file_and_zip zhwiki-20230823.dict zhwiki.dict zhwiki
 copy_file_and_zip symbols.mb symbols.mb symbols
+copy_dir_and_zip 星空黑
+copy_dir_and_zip dracula
 copy_dir_and_zip Simple-dark
 copy_dir_and_zip Simple-white
 copy_dir_and_zip sogou_dict
 copy_dir_and_zip uppercase_addon
-copy_dir_and_zip 星空黑
 
 cp ../fcitx5_customizer.sh ./fcitx5_customizer.sh
