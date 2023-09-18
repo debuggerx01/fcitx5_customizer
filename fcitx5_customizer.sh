@@ -182,7 +182,6 @@ for OPTION in $OPTIONS ; do
     download_and_unzip 'sogou_dict.zip' '精选搜狗细胞词库' ~/.local/share/fcitx5/pinyin/dictionaries
     mv ~/.local/share/fcitx5/pinyin/dictionaries/sogou_dict/* ~/.local/share/fcitx5/pinyin/dictionaries
     rm -r ~/.local/share/fcitx5/pinyin/dictionaries/sogou_dict
-    exit
     ;;
   开启云拼音)
     check_and_install fcitx5-module-cloudpinyin "云拼音组件"
