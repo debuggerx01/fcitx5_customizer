@@ -46,7 +46,7 @@ function download_and_unzip() {
     echo "$2下载成功"
   fi
   mkdir -p "$3"
-  unzip -q /tmp/"$1" -d "$3"
+  yes | unzip -q /tmp/"$1" -d "$3"
   echo "$2安装成功"
 }
 
