@@ -97,7 +97,7 @@ function check_and_install() {
     echo "$2已安装"
   else
     echo "安装$2"
-    sudo apt install "$1"
+    sudo apt install -y "$1"
   fi
 }
 
@@ -154,7 +154,7 @@ OPTIONS=$(dialog --stdout --checklist "请使用上下方向键移动选项，�
 安装皮肤-solarized 'Solarized主题(暗青)' "${FLAGS[19]}" \
 '安装皮肤-简约黑/白' 'Maicss专为深度制作的主题' "${FLAGS[20]}" \
 安装皮肤-dracula 'drbbr制作的德古拉主题' "${FLAGS[21]}" \
-选择皮肤 "进入皮肤选择页面(新皮肤安装时会自动进入)" "${FLAGS[22]}" \
+选择皮肤 "进入皮肤选择页面" "${FLAGS[22]}" \
 )
 
 clear
