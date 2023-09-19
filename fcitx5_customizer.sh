@@ -74,6 +74,9 @@ function select_from_array() {
     OPTS+=("$INDEX" "$ITEM")
   done
   ITEM=$(dialog --stdout --default-item "$DEFAULT_ITEM" --menu "$TITLE" 0 0 0 "${OPTS[@]}")
+
+  clear
+
   echo "$((${ITEM:-0} - 1))"
 }
 
