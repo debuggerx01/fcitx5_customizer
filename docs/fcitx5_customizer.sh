@@ -207,8 +207,8 @@ for OPTION in $OPTIONS ; do
       PAGE_SIZES=(5 7 10)
       PAGE_SIZE=${PAGE_SIZES[$SELECTED_INDEX]}
       # 设置候选词数量，同时修改默认候选词数量和拼音候选词数量
-      if ! [ -e ~/.config/fcitx5/config ] ||  < ~/.config/fcitx5/config grep -q "Behavior" ; then
-        echo -e '[Behavior]\n' > ~/.config/fcitx5/conf/pinyin.conf
+      if ! ([ -e ~/.config/fcitx5/config ] && < ~/.config/fcitx5/config grep -q "Behavior"); then
+        echo -e '[Behavior]\n' >> ~/.config/fcitx5/config
       fi
       change_config 'DefaultPageSize' "$PAGE_SIZE" ~/.config/fcitx5/config
       change_config 'PageSize' "$PAGE_SIZE" ~/.config/fcitx5/conf/pinyin.conf
