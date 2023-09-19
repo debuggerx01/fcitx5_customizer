@@ -266,9 +266,14 @@ for OPTION in $OPTIONS ; do
   ;;
   安装Emoji支持组件)
     check_and_install fcitx5-module-emoji "Emoji支持组件"
+    check_and_install fonts-noto-color-emoji "Emoji字体"
   ;;
   大写时关闭拼音输入)
     download_and_unzip 'uppercase_addon.zip' '大写时关闭拼音输入插件' ~/.local/share/fcitx5
+    mv ~/.local/share/fcitx5/uppercase_addon/* ~/.local/share/fcitx5
+    rm -r ~/.local/share/fcitx5/uppercase_addon
+    check_and_install fcitx5-module-lua 'lua支持模块'
+    check_and_install liblua5.3-0 'lua运行库'
   ;;
   *星空黑)
     download_and_unzip '星空黑.zip' '皮肤-星空黑' ~/.local/share/fcitx5/themes
