@@ -75,8 +75,6 @@ function select_from_array() {
   done
   ITEM=$(dialog --stdout --default-item "$DEFAULT_ITEM" --menu "$TITLE" 0 0 0 "${OPTS[@]}")
 
-  clear
-  
   echo "$((${ITEM:-0} - 1))"
 }
 
@@ -204,6 +202,8 @@ for OPTION in $OPTIONS ; do
       '10个候选词，建议横排模式使用' \
     )
 
+    clear
+
     if [ "${SELECTED_INDEX:-0}" -ge "0" ]; then
       # 先退出Fcitx，避免修改的配置被运行中的进程恢复
       fcitx5-remote -e
@@ -219,7 +219,7 @@ for OPTION in $OPTIONS ; do
     fi
   ;;
   修改字体大小)
-    SELECTED_INDEX=$(select_from_array '请选择候选词数量' 2 \
+    SELECTED_INDEX=$(select_from_array '请选择字体大小' 2 \
       '8' \
       '10(默认大小)' \
       '12' \
@@ -230,6 +230,8 @@ for OPTION in $OPTIONS ; do
       '22' \
       '24' \
     )
+
+    clear
 
     if [ "${SELECTED_INDEX:-0}" -ge "0" ]; then
       FONT_SIZES=(8 10 12 14 16 18 20 22 24)
