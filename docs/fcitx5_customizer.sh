@@ -105,7 +105,7 @@ if ! check_installed fcitx5 || [ "$GTK_IM_MODULE" != "fcitx" ] ; then
   exit
 fi
 
-if [ -e /usr/bin/apt ] ; then
+if ! [ -e /usr/bin/apt ] ; then
   dialog --msgbox "目前本脚本只能在debian系(deepin、ubuntu)发行版中运行" 10 32
   exit
 fi
