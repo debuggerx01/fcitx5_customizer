@@ -22,6 +22,7 @@ cd ./docs || exit 1
 
 copy_file_and_zip zhwiki-20230823.dict zhwiki.dict zhwiki
 copy_file_and_zip symbols.mb symbols.mb symbols
+copy_file_and_zip punc.mb.zh_CN punc.mb.zh_CN punc_zh_CN
 copy_dir_and_zip 星空黑
 copy_dir_and_zip dracula
 copy_dir_and_zip Simple-dark

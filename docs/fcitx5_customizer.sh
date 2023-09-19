@@ -38,6 +38,15 @@ function change_config() {
   fi
 }
 
+# params: <匹配行> <替换行> <文件不存在时的内容> <配置文件路径>
+function change_config_next_line() {
+  if [ -f "$4" ] &&  < "$4" grep -q "$1" ; then
+    sed -i "/$1/{n;s/.*/$2/}" "$4"
+  else
+    echo -e "$3" >> "$4"
+  fi
+}
+
 # params: <zip包名> <中文名> <解压路径>
 function download_and_unzip() {
   echo "开始下载$2[$BASE_URL$1]"
@@ -91,23 +100,15 @@ function check_and_install() {
   fi
 }
 
-# 配置云拼音
-function config_cloudpinyin() {
-  change_config 'CloudPinyinEnabled' 'True' ~/.config/fcitx5/conf/pinyin.conf
-  cat << EOF > ~/.config/fcitx5/conf/cloudpinyin.conf
-# 最小拼音长度
-MinimumPinyinLength=2
-# 后端
-Backend=Baidu
-# 代理
-Proxy=
+if ! check_installed fcitx5 || [ "$GTK_IM_MODULE" != "fcitx" ] ; then
+  dialog --msgbox "本脚本只针对Fcitx5进行优化，而您使用的输入法是[$GTK_IM_MODULE]，请确认后重试" 10 32
+  exit
+fi
 
-[Toggle Key]
-0=Control+Alt+Shift+C
-
-EOF
-}
-
+if [ -e /usr/bin/apt ] ; then
+  dialog --msgbox "目前本脚本只能在debian系(deepin、ubuntu)发行版中运行" 10 32
+  exit
+fi
 
 FLAGS=()
 for i in {0..22}
@@ -185,8 +186,10 @@ for OPTION in $OPTIONS ; do
     ;;
   开启云拼音)
     check_and_install fcitx5-module-cloudpinyin "云拼音组件"
-    echo '配置云拼音'
-    config_cloudpinyin
+    change_config 'CloudPinyinEnabled' 'True' ~/.config/fcitx5/conf/pinyin.conf
+    change_config 'MinimumPinyinLength' '2' ~/.config/fcitx5/conf/cloudpinyin.conf
+    change_config 'Backend' 'Baidu' ~/.config/fcitx5/conf/cloudpinyin.conf
+    echo '已配置云拼音'
     ;;
   竖排显示)
     VERTICAL_CANDIDATE_LIST=true
@@ -210,9 +213,9 @@ for OPTION in $OPTIONS ; do
     fi
   ;;
   修改字体大小)
-    SELECTED_INDEX=$(select_from_array '请选择候选词数量' 3 \
+    SELECTED_INDEX=$(select_from_array '请选择候选词数量' 2 \
       '8' \
-      '10' \
+      '10(默认大小)' \
       '12' \
       '14' \
       '16' \
@@ -225,12 +228,20 @@ for OPTION in $OPTIONS ; do
     if [ "${SELECTED_INDEX:-0}" -ge "0" ]; then
       FONT_SIZES=(8 10 12 14 16 18 20 22 24)
       FONT_SIZE=${FONT_SIZES[$SELECTED_INDEX]}
-      echo "todo: 修改字体大小"
+
+      if [ -f ~/.config/fcitx5/conf/classicui.conf ] &&  < ~/.config/fcitx5/conf/classicui.conf grep -q "^Font.*" ; then
+        sed -i "/^Font.*/{s/[0-9]\{1,2\/$FONT_SIZE/}" ~/.config/fcitx5/conf/classicui.conf
+      else
+        echo "Font=\"Sans $FONT_SIZE\"" >> ~/.config/fcitx5/conf/classicui.conf
+      fi
+
       echo "已修改字体大小为$FONT_SIZE"
     fi
   ;;
   修改默认加减号翻页)
-    echo 'todo:修改默认加减号翻页'
+    change_config_next_line "\[Hotkey\/PrevPage\]" "0\=minus" "[Hotkey/PrevPage]\n0=minus" ~/.config/fcitx5/config
+    change_config_next_line "\[Hotkey\/NextPage\]" "0\=equal" "[Hotkey/NextPage]\n0=equal" ~/.config/fcitx5/config
+    echo '已修改默认加减号翻页'
   ;;
   关闭预编辑)
     change_config 'PreeditEnabledByDefault' "False" ~/.config/fcitx5/config
@@ -245,19 +256,19 @@ for OPTION in $OPTIONS ; do
     change_config 'TriggerKey' "" ~/.config/fcitx5/conf/unicode.conf
     change_config 'DirectUnicodeMode' "" ~/.config/fcitx5/conf/unicode.conf
     change_config '0' "" ~/.config/fcitx5/conf/cloudpinyin.conf
-    echo 'todo:禁用不常用快捷键'
+    echo '已禁用不常用快捷键'
   ;;
   优化中文标点)
-    echo 'todo:优化中文标点'
+    download_and_unzip 'punc_zh_CN.zip' '中文标点优化配置' ~/.local/share/fcitx5/punctuation
   ;;
   配置特殊符号)
-    echo 'todo:配置特殊符号'
+    download_and_unzip 'symbols.zip' '特殊符号集' ~/.local/share/fcitx5/data/quickphrase.d
   ;;
   安装Emoji支持组件)
     check_and_install fcitx5-module-emoji "Emoji支持组件"
   ;;
   大写时关闭拼音输入)
-    echo 'todo:大写时关闭拼音输入'
+    download_and_unzip 'uppercase_addon.zip' '大写时关闭拼音输入插件' ~/.local/share/fcitx5
   ;;
   *星空黑)
     download_and_unzip '星空黑.zip' '皮肤-星空黑' ~/.local/share/fcitx5/themes
