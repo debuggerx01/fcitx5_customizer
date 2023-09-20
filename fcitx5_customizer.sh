@@ -271,7 +271,7 @@ for OPTION in $OPTIONS ; do
   禁用不常用快捷键)
     change_config 'TriggerKey' "" ~/.config/fcitx5/conf/unicode.conf
     change_config 'DirectUnicodeMode' "" ~/.config/fcitx5/conf/unicode.conf
-    change_config '0' "" ~/.config/fcitx5/conf/cloudpinyin.conf
+    change_config_next_line '\[Toggle Key\]' "0\=" '' ~/.config/fcitx5/conf/cloudpinyin.conf
     echo '已禁用不常用快捷键'
   ;;
   优化中文标点)
