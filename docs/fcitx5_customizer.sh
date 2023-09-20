@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+#   Copyright 2023 DebuggerX-DEV
+#   Author:     DebuggerX <dx8917312@gmail.com>
+
 BASE_URL="https://www.debuggerx.com/fcitx5_customizer/"
 
 SELECTED_SKIN=''
@@ -122,12 +125,17 @@ if [ "$1" == "recommend" ]; then
   FLAGS[1]='on'
   FLAGS[2]='on'
   FLAGS[3]='on'
+  FLAGS[5]='on'
   FLAGS[6]='on'
+  FLAGS[7]='on'
   FLAGS[8]='on'
   FLAGS[10]='on'
   FLAGS[11]='on'
   FLAGS[12]='on'
   FLAGS[13]='on'
+  FLAGS[14]='on'
+  FLAGS[15]='on'
+  FLAGS[22]='on'
 fi
 
 # 弹出主选框
@@ -221,7 +229,7 @@ for OPTION in $OPTIONS ; do
   修改字体大小)
     SELECTED_INDEX=$(select_from_array '请选择字体大小' 2 \
       '8' \
-      '10(默认大小)' \
+      '10\(默认大小\)' \
       '12' \
       '14' \
       '16' \

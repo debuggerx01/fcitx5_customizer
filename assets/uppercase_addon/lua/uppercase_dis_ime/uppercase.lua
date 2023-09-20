@@ -1,3 +1,13 @@
+--
+-- SPDX-FileCopyrightText: 2023 DebuggerX <dx8917312@gmail.com>
+--
+-- SPDX-License-Identifier: LGPL-2.1-or-later
+--
+
+--- Disable IME when entering uppercase letters.
+-- @module UppercaseDisIME
+
+
 local fcitx = require("fcitx")
 
 fcitx.watchEvent(fcitx.EventType.KeyEvent, "handleUppercaseLetter")
