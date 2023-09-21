@@ -229,7 +229,7 @@ for OPTION in $OPTIONS ; do
   修改字体大小)
     SELECTED_INDEX=$(select_from_array '请选择字体大小' 2 \
       '8' \
-      '10\(默认大小\)' \
+      "10(默认大小)" \
       '12' \
       '14' \
       '16' \
