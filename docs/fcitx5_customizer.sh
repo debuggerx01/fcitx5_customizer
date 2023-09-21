@@ -150,7 +150,7 @@ OPTIONS=$(dialog --stdout --checklist "请使用上下方向键移动选项，�
 修改默认加减号翻页 快速输入时生效，默认为上下方向键 "${FLAGS[7]}" \
 关闭预编辑 关闭在程序中显示输入中的拼音功能 "${FLAGS[8]}" \
 开启数字键盘选词 使用数字小键盘选词 "${FLAGS[9]}" \
-禁用不常用快捷键 切换简繁体、剪切板、Unicode输入 "${FLAGS[10]}" \
+禁用不常用快捷键 切换简繁体、剪切板、Unicode输入等 "${FLAGS[10]}" \
 优化中文标点 解决方括号输入问题 "${FLAGS[11]}" \
 配置特殊符号 按v键触发快速输入特殊符号 "${FLAGS[12]}" \
 安装Emoji支持组件 可以显示彩色Emoji表情 "${FLAGS[13]}" \
@@ -269,9 +269,20 @@ for OPTION in $OPTIONS ; do
     echo '已开启数字键盘选词'
   ;;
   禁用不常用快捷键)
+    # 禁用unicode相关快捷键
     change_config 'TriggerKey' "" ~/.config/fcitx5/conf/unicode.conf
     change_config 'DirectUnicodeMode' "" ~/.config/fcitx5/conf/unicode.conf
-    change_config_next_line '\[Toggle Key\]' "0\=" '' ~/.config/fcitx5/conf/cloudpinyin.conf
+    # 云拼音切换快捷键
+    change_config_next_line '\[Toggle Key\]' '' '' ~/.config/fcitx5/conf/cloudpinyin.conf
+    sed -i "s/\[Toggle Key\]//" ~/.config/fcitx5/conf/cloudpinyin.conf
+    change_config 'Toggle Key' '' ~/.config/fcitx5/conf/cloudpinyin.conf
+    # 简繁体切换
+    change_config_next_line '\[Hotkey\]' '' '' ~/.config/fcitx5/conf/chttrans.conf
+    sed -i "s/\[Hotkey\]//" ~/.config/fcitx5/conf/chttrans.conf
+    change_config 'Hotkey' '' ~/.config/fcitx5/conf/chttrans.conf
+    # 剪切板
+    echo -e 'PastePrimaryKey=\nTriggerKey=' > ~/.config/fcitx5/conf/clipboard.conf
+
     echo '已禁用不常用快捷键'
   ;;
   优化中文标点)
