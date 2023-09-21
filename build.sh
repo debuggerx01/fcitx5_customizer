@@ -29,5 +29,6 @@ copy_dir_and_zip Simple-dark
 copy_dir_and_zip Simple-white
 copy_dir_and_zip sogou_dict
 copy_dir_and_zip uppercase_addon
+copy_dir_and_zip lua
 
 cp ../fcitx5_customizer.sh ./fcitx5_customizer.sh

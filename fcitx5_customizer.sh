@@ -290,6 +290,7 @@ for OPTION in $OPTIONS ; do
   ;;
   配置特殊符号)
     download_and_unzip 'symbols.zip' '特殊符号集' ~/.local/share/fcitx5/data/quickphrase.d
+    download_and_unzip 'lua.zip' '特殊符号集' ~/.local/share/fcitx5
   ;;
   安装Emoji支持组件)
     check_and_install fcitx5-module-emoji "Emoji支持组件"
