@@ -246,7 +246,7 @@ for OPTION in $OPTIONS ; do
       FONT_SIZE=${FONT_SIZES[$SELECTED_INDEX]}
 
       if [ -f ~/.config/fcitx5/conf/classicui.conf ] &&  < ~/.config/fcitx5/conf/classicui.conf grep -q "^Font.*" ; then
-        sed -i "/^Font.*/{s/[0-9]\{1,2\/$FONT_SIZE/}" ~/.config/fcitx5/conf/classicui.conf
+        sed -i "/^Font.*/{s/[0-9]\{1,2\}/$FONT_SIZE/}" ~/.config/fcitx5/conf/classicui.conf
       else
         echo "Font=\"Sans $FONT_SIZE\"" >> ~/.config/fcitx5/conf/classicui.conf
       fi
