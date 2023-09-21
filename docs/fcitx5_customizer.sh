@@ -179,6 +179,8 @@ PAGE_SIZE=7
 # 进入皮肤选择界面
 SKIN_SELECT=false
 
+# 先退出Fcitx，避免修改的配置被运行中的进程恢复
+fcitx5-remote -e
 
 for OPTION in $OPTIONS ; do
   case $OPTION in
@@ -213,8 +215,6 @@ for OPTION in $OPTIONS ; do
     clear
 
     if [ "${SELECTED_INDEX:-0}" -ge "0" ]; then
-      # 先退出Fcitx，避免修改的配置被运行中的进程恢复
-      fcitx5-remote -e
       PAGE_SIZES=(5 7 10)
       PAGE_SIZE=${PAGE_SIZES[$SELECTED_INDEX]}
       # 设置候选词数量，同时修改默认候选词数量和拼音候选词数量
@@ -333,9 +333,6 @@ done
 if $SKIN_SELECT; then
   select_skin
 fi
-
-# 先退出Fcitx，避免修改的配置被运行中的进程恢复
-fcitx5-remote -e
 
 # 设置是否为竖排模式
 if $VERTICAL_CANDIDATE_LIST; then
