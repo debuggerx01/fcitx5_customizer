@@ -152,7 +152,7 @@ OPTIONS=$(dialog --stdout --checklist "请使用上下方向键移动选项，�
 开启数字键盘选词 使用数字小键盘选词 "${FLAGS[9]}" \
 禁用不常用快捷键 切换简繁体、剪切板、Unicode输入等 "${FLAGS[10]}" \
 优化中文标点 解决方括号输入问题 "${FLAGS[11]}" \
-配置特殊符号 按v键触发快速输入特殊符号 "${FLAGS[12]}" \
+配置快速输入 按v键快速输入特殊符号及函数 "${FLAGS[12]}" \
 安装Emoji支持组件 可以显示彩色Emoji表情 "${FLAGS[13]}" \
 大写时关闭拼音输入 输入大写字母时临时禁用输入法 "${FLAGS[14]}" \
 安装皮肤-星空黑 DebuggerX转换的搜狗主题 "${FLAGS[15]}" \
@@ -288,9 +288,9 @@ for OPTION in $OPTIONS ; do
   优化中文标点)
     download_and_unzip 'punc_zh_CN.zip' '中文标点优化配置' ~/.local/share/fcitx5/punctuation
   ;;
-  配置特殊符号)
+  配置快速输入)
     download_and_unzip 'symbols.zip' '特殊符号集' ~/.local/share/fcitx5/data/quickphrase.d
-    download_and_unzip 'lua.zip' '特殊符号集' ~/.local/share/fcitx5
+    download_and_unzip 'lua.zip' 'lua脚本集' ~/.local/share/fcitx5
   ;;
   安装Emoji支持组件)
     check_and_install fcitx5-module-emoji "Emoji支持组件"

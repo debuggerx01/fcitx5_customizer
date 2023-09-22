@@ -1,3 +1,11 @@
+--
+-- SPDX-FileCopyrightText: 2023 DebuggerX <dx8917312@gmail.com>
+--
+-- SPDX-License-Identifier: LGPL-2.1-or-later
+--
+
+--- Current date and time strings.
+
 function trim_left_zero(s)
     return (s:gsub("^0*", ""))
 end
