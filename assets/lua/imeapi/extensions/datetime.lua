@@ -11,6 +11,12 @@ function trim_left_zero(s)
 end
 
 function _time(input)
+  if input == "c" then
+    return {
+      os.time(),
+      os.date("!%Y-%m-%dT%TZ")
+    }
+  end
   local time = os.time()
   local mon = trim_left_zero(os.date("%m", time))
   return {
@@ -33,3 +39,4 @@ end
 ime.register_command("sj", "_time", "当前时间")
 
 ime.register_command("rq", "_date", "当前日期")
+
