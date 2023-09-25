@@ -3,7 +3,7 @@
 #   Copyright 2023 DebuggerX-DEV
 #   Author:     DebuggerX <dx8917312@gmail.com>
 
-BASE_URL="https://www.debuggerx.com/fcitx5_customizer/"
+BASE_URL="www.debuggerx.com/fcitx5_customizer/"
 
 SELECTED_SKIN=''
 
@@ -52,10 +52,19 @@ function change_config_next_line() {
 
 # params: <zip包名> <中文名> <解压路径>
 function download_and_unzip() {
-  echo "开始下载$2[$BASE_URL$1]"
-  curl -o /tmp/"$1" "$BASE_URL$1"
-  if [ -f /tmp/"$1" ]; then
+  echo "开始下载$2[https://$BASE_URL$1]"
+  curl -o /tmp/"$1" "https://$BASE_URL$1"
+  if unzip -z /tmp/"$1" ; then
     echo "$2下载成功"
+  else
+    echo "重试下载$2[http://$BASE_URL$1]"
+    curl -o /tmp/"$1" "http://$BASE_URL$1"
+    if unzip -z /tmp/"$1"; then
+      echo "$2下载成功"
+    else
+      echo "$2下载失败"
+      return 1
+    fi
   fi
   mkdir -p "$3"
   yes | unzip -q /tmp/"$1" -d "$3"
