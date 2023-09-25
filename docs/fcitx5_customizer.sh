@@ -97,20 +97,32 @@ function check_installed() {
 # params: <包名> <包的中文名>
 function check_and_install() {
   if check_installed "$1"; then
-    echo "$2已安装"
+    if ! [ "$2" == "" ]; then
+      echo "$2已安装"
+    fi
   else
-    echo "安装$2"
+    if [ "$2" == "" ]; then
+      echo "安装$1"
+    else
+      echo "安装$2"
+    fi
     sudo apt install -y "$1"
   fi
 }
 
-if ! check_installed fcitx5 || [ "$GTK_IM_MODULE" != "fcitx" ] ; then
-  dialog --msgbox "本脚本只针对Fcitx5进行优化，而您使用的输入法是[$GTK_IM_MODULE]，请确认后重试" 10 32
+if ! [ -e /usr/bin/apt ] ; then
+  dialog --msgbox "目前本脚本只能在 debian 系列 (deepin、ubuntu、mint等)发行版中运行" 10 32
+  clear
+  echo "目前本脚本只能在 debian 系列 (deepin、ubuntu、mint等)发行版中运行"
   exit
 fi
 
-if ! [ -e /usr/bin/apt ] ; then
-  dialog --msgbox "目前本脚本只能在 debian 系列 (deepin、ubuntu、mint等)发行版中运行" 10 32
+# 先确保dialog和unzip已安装
+check_and_install unzip ''
+check_and_install dialog ''
+
+if ! check_installed fcitx5 || [ "$GTK_IM_MODULE" != "fcitx" ] ; then
+  dialog --msgbox "本脚本只针对Fcitx5进行优化，而您使用的输入法是[$GTK_IM_MODULE]，请确认后重试" 10 32
   exit
 fi
 
