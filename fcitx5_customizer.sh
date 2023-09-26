@@ -126,9 +126,10 @@ if ! [ -e /usr/bin/apt ] ; then
   exit
 fi
 
-# 先确保dialog和unzip已安装
+# 先确保dialog、unzip和curl已安装
 check_and_install unzip ''
 check_and_install dialog ''
+check_and_install curl ''
 
 if ! check_installed fcitx5 || [ "$GTK_IM_MODULE" != "fcitx" ] ; then
   dialog --msgbox "本脚本只针对Fcitx5进行优化，而您使用的输入法是[$GTK_IM_MODULE]，请确认后重试" 10 32

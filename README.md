@@ -1,4 +1,5 @@
 # Fcitx5定制优化脚本
+![logo](https://www.debuggerx.com/fcitx5_customizer/logo.png)
 一个针对 [Fcitx5](https://github.com/fcitx/fcitx5) 的优化脚本，力求更符合简中用户的使用习惯～
 
 # 使用方法
