@@ -1,0 +1,17 @@
+{
+    "appid": "com.debuggerx.fcitx5-customizer",
+    "name": "com.github.aristocratos.bashtop",
+    "version": "VERSION",
+    "arch": ["amd64","arm64","loongarch64"],
+    "permissions": {
+        "autostart": false,
+        "notification": false,
+        "trayicon": true,
+        "clipboard": true,
+        "account": false,
+        "bluetooth": false,
+        "camera": true,
+        "audio_record": true,
+        "installed_apps": false
+    }
+}

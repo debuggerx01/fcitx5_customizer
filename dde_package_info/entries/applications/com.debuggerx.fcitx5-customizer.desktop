@@ -1,0 +1,12 @@
+[Desktop Entry]
+Categories=System;
+Encoding=UTF-8
+Exec=/opt/apps/com.debuggerx.fcitx5-customizer/files/launcher.sh
+Icon=fcitx5_customizer
+MimeType=
+Name=fcitx5-customizer
+Name[zh_CN]=fcitx5 定制工具
+StartupWMClass=fcitx5-customizer
+Terminal=true
+Version=VERSION
+Type=Application

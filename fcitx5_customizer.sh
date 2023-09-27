@@ -2,9 +2,11 @@
 
 #   Copyright 2023 DebuggerX-DEV
 #   Author:     DebuggerX <dx8917312@gmail.com>
+#   Version:    0.0.1
 
-BASE_URL="www.debuggerx.com/fcitx5_customizer/"
-BASE_URL_SPARK_MIRROR="cdn.d.store.deepinos.org.cn/spark-community-mirror/fcitx5-customizer-assets/"
+
+BASE_URL="https://www.debuggerx.com/fcitx5_customizer/"
+GHPROXY_MIRROR_URL="https://ghproxy.com/https://raw.githubusercontent.com/debuggerx01/fcitx5_customizer/master/docs/"
 SELECTED_SKIN=''
 
 function select_skin {
@@ -52,13 +54,13 @@ function change_config_next_line() {
 
 # params: <zip包名> <中文名> <解压路径>
 function download_and_unzip() {
-  echo "开始下载$2[https://$BASE_URL$1]"
-  curl -o /tmp/"$1" "https://$BASE_URL$1"
+  echo "开始下载$2[$BASE_URL$1]"
+  curl -o /tmp/"$1" "$BASE_URL$1"
   if unzip -z /tmp/"$1" ; then
     echo "$2下载成功"
   else
-    echo "重试下载$2[http://$BASE_URL$1]"
-    curl -o /tmp/"$1" "http://$BASE_URL_SPARK_MIRROR$1"
+    echo "重试下载$2[$GHPROXY_MIRROR_URL$1]"
+    curl -o /tmp/"$1" "$GHPROXY_MIRROR_URL$1"
     if unzip -z /tmp/"$1"; then
       echo "$2下载成功"
     else

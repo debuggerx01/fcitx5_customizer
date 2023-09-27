@@ -28,17 +28,19 @@ SELECTED_INDEX=$(select_from_array "欢迎使用Fcitx5优化脚本，请选择�
 
 clear
 
+CURRENT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
+
 case $SELECTED_INDEX in
 0)
-  echo a
+  curl -sSL https://www.debuggerx.com/fcitx5_customizer/fcitx5_customizer.sh | bash -s -- recommend
   ;;
 1)
-  echo b
+  bash -c "$(curl -fsSL https://www.debuggerx.com/fcitx5_customizer/fcitx5_customizer.sh)"
   ;;
 2)
-  echo c
+  bash "$CURRENT_DIR"/fcitx5_customizer.sh recommend
   ;;
 3)
-  echo d
+  bash "$CURRENT_DIR"/fcitx5_customizer.sh
   ;;
 esac
