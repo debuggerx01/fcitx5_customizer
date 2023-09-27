@@ -4,7 +4,7 @@
 #   Author:     DebuggerX <dx8917312@gmail.com>
 
 BASE_URL="www.debuggerx.com/fcitx5_customizer/"
-
+BASE_URL_SPARK_MIRROR="cdn.d.store.deepinos.org.cn/spark-community-mirror/fcitx5-customizer-assets/"
 SELECTED_SKIN=''
 
 function select_skin {
@@ -58,7 +58,7 @@ function download_and_unzip() {
     echo "$2下载成功"
   else
     echo "重试下载$2[http://$BASE_URL$1]"
-    curl -o /tmp/"$1" "http://$BASE_URL$1"
+    curl -o /tmp/"$1" "http://$BASE_URL_SPARK_MIRROR$1"
     if unzip -z /tmp/"$1"; then
       echo "$2下载成功"
     else
@@ -101,6 +101,28 @@ function check_installed() {
   fi
   return 1
 }
+# 添加aptss支持：若aptss可用，对deepin加速（deepin官方源似乎....已经买不起大流量了？)
+function decide_apt_command()
+{
+    if grep -Eqii "Deepin" /etc/issue || grep -Eq "Deepin" /etc/*-release; then
+        DISTRO='Deepin'
+    elif grep -Eqi "UnionTech" /etc/issue || grep -Eq "UnionTech" /etc/*-release; then
+        DISTRO='UniontechOS'
+    elif grep -Eqi "UOS" /etc/issue || grep -Eq "UOS" /etc/*-release; then
+        DISTRO='UniontechOS'
+    else
+         DISTRO='OtherOS'
+    fi
+    
+    if [ "$DISTRO" = "Deepin" ] && [ "`which aptss`" != "" ];then
+    echo "检测到正在使用deepin,且aptss加速可用，使用aptss进行安装加速"
+    apt_command="aptss"
+    else
+    echo "使用/usr/bin/apt来提供安装服务"
+    apt_command=/usr/bin/apt
+    fi
+}
+
 
 # 检查包，未安装则执行安装
 # params: <包名> <包的中文名>
@@ -115,7 +137,7 @@ function check_and_install() {
     else
       echo "安装$2"
     fi
-    sudo apt install -y "$1"
+    sudo ${apt_command} install -y "$1"
   fi
 }
 
@@ -125,6 +147,9 @@ if ! [ -e /usr/bin/apt ] ; then
   echo "目前本脚本只能在 debian 系列 (deepin、ubuntu、mint等)发行版中运行"
   exit
 fi
+
+
+decide_apt_command
 
 # 先确保dialog、unzip和curl已安装
 check_and_install unzip ''
