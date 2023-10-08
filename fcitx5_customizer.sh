@@ -2,12 +2,44 @@
 
 #   Copyright 2023 DebuggerX-DEV
 #   Author:     DebuggerX <dx8917312@gmail.com>
-#   Version:    0.0.1
-
+#   Version:    1.0.3
 
 BASE_URL="https://www.debuggerx.com/fcitx5_customizer/"
 GHPROXY_MIRROR_URL="https://ghproxy.com/https://raw.githubusercontent.com/debuggerx01/fcitx5_customizer/master/docs/"
 SELECTED_SKIN=''
+
+PM_COMMAND=''
+PACKAGE_MANAGER=''
+
+read -r -d '' PACKAGES << EOJSON
+{
+  "apt": {
+    "curl": "curl",
+    "dialog": "dialog",
+    "unzip": "unzip",
+    "sougou_dict": "fcitx5-pinyin-sougou",
+    "cloudpinyin": "fcitx5-module-cloudpinyin",
+    "emoji": "fcitx5-module-emoji",
+    "emoji_font": "fonts-noto-color-emoji",
+    "lua": "fcitx5-module-lua",
+    "liblua": "liblua5.3-0",
+    "breeze": "fcitx5-breeze",
+    "material_color": "fcitx5-material-color",
+    "nord": "fcitx5-nord",
+    "solarized": "fcitx5-solarized"
+  },
+  "pacman": {
+    "curl": "curl",
+    "dialog": "dialog",
+    "unzip": "unzip",
+    "emoji_font": "noto-fonts-emoji",
+    "lua": "fcitx5-lua",
+    "breeze": "fcitx5-breeze",
+    "material_color": "fcitx5-material-color",
+    "nord": "fcitx5-nord"
+  }
+}
+EOJSON
 
 function select_skin {
   local THEMES SKIN OPTS ITEMS THEME INDEX
@@ -17,8 +49,8 @@ function select_skin {
   OPTS=()
   ITEMS=()
   INDEX=0
-  for THEME in $(echo "${THEMES[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ') ; do
-    (( INDEX++ )) || true
+  for THEME in $(echo "${THEMES[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '); do
+    ((INDEX++)) || true
     OPTS+=("$INDEX" "$THEME")
     ITEMS+=("$THEME")
   done
@@ -29,26 +61,26 @@ function select_skin {
   if [ ${#SKIN} == 0 ]; then
     echo '未选择皮肤'
   else
-    SELECTED_SKIN=${ITEMS[$SKIN-1]}
-    echo "选择了[${ITEMS[$SKIN-1]}]皮肤"
+    SELECTED_SKIN=${ITEMS[$SKIN - 1]}
+    echo "选择了[${ITEMS[$SKIN - 1]}]皮肤"
   fi
 }
 
 # params: <key> <value> <配置文件路径>
 function change_config() {
-  if [ -f "$3" ] &&  < "$3" grep -q "$1" ; then
+  if [ -f "$3" ] && grep <"$3" -q "$1"; then
     sed -i "s/$1.*/$1=$2/" "$3"
   else
-    echo "$1=$2" >> "$3"
+    echo "$1=$2" >>"$3"
   fi
 }
 
 # params: <匹配行> <替换行> <文件不存在时的内容> <配置文件路径>
 function change_config_next_line() {
-  if [ -f "$4" ] &&  < "$4" grep -q "$1" ; then
+  if [ -f "$4" ] && grep <"$4" -q "$1"; then
     sed -i "/$1/{n;s/.*/$2/}" "$4"
   else
-    echo -e "$3" >> "$4"
+    echo -e "$3" >>"$4"
   fi
 }
 
@@ -56,7 +88,7 @@ function change_config_next_line() {
 function download_and_unzip() {
   echo "开始下载$2[$BASE_URL$1]"
   curl -o /tmp/"$1" "$BASE_URL$1"
-  if unzip -z /tmp/"$1" ; then
+  if unzip -z /tmp/"$1"; then
     echo "$2下载成功"
   else
     echo "重试下载$2[$GHPROXY_MIRROR_URL$1]"
@@ -83,8 +115,8 @@ function select_from_array() {
   shift
   OPTS=()
   INDEX=0
-  for ITEM in "$@" ; do
-    (( INDEX++ )) || true
+  for ITEM in "$@"; do
+    ((INDEX++)) || true
     OPTS+=("$INDEX" "$ITEM")
   done
   ITEM=$(dialog --stdout --default-item "$DEFAULT_ITEM" --menu "$TITLE" 0 0 0 "${OPTS[@]}")
@@ -103,69 +135,80 @@ function check_installed() {
   fi
   return 1
 }
-# 添加aptss支持：若aptss可用，对deepin加速（deepin官方源似乎....已经买不起大流量了？)
-function decide_apt_command()
-{
-    if grep -Eqii "Deepin" /etc/issue || grep -Eq "Deepin" /etc/*-release; then
-        DISTRO='Deepin'
-    elif grep -Eqi "UnionTech" /etc/issue || grep -Eq "UnionTech" /etc/*-release; then
-        DISTRO='UniontechOS'
-    elif grep -Eqi "UOS" /etc/issue || grep -Eq "UOS" /etc/*-release; then
-        DISTRO='UniontechOS'
-    else
-         DISTRO='OtherOS'
-    fi
-    
-    if [ "$DISTRO" = "Deepin" ] && [ "`which aptss`" != "" ];then
-    echo "检测到正在使用deepin,且aptss加速可用，使用aptss进行安装加速"
-    apt_command="aptss"
-    else
-    echo "使用/usr/bin/apt来提供安装服务"
-    apt_command=/usr/bin/apt
-    fi
-}
 
+# 添加aptss支持：若aptss可用，对deepin加速（deepin官方源似乎....已经买不起大流量了？)
+function decide_apt_command() {
+  if grep -Eqii "Deepin" /etc/issue || grep -Eq "Deepin" /etc/*-release; then
+    DISTRO='Deepin'
+  elif grep -Eqi "UnionTech" /etc/issue || grep -Eq "UnionTech" /etc/*-release; then
+    DISTRO='UniontechOS'
+  elif grep -Eqi "UOS" /etc/issue || grep -Eq "UOS" /etc/*-release; then
+    DISTRO='UniontechOS'
+  else
+    DISTRO='OtherOS'
+  fi
+
+  if [ "$DISTRO" = "Deepin" ] && [ "$(which aptss)" != "" ]; then
+    echo "检测到正在使用deepin,且aptss加速可用，使用aptss进行安装加速"
+    PM_COMMAND="aptss install -y"
+  else
+    echo "使用/usr/bin/apt来提供安装服务"
+    PM_COMMAND="/usr/bin/apt install -y"
+  fi
+}
 
 # 检查包，未安装则执行安装
 # params: <包名> <包的中文名>
 function check_and_install() {
-  if check_installed "$1"; then
+  local PACKAGE
+  if [ "$1" == "jq" ] ; then
+    PACKAGE="jq"
+  else
+    PACKAGE=$(echo "$PACKAGES" | jq .$PACKAGE_MANAGER."$1" | tr -d '"')
+  fi
+  if [ $PACKAGE_MANAGER == "apt" ] && [ "$PACKAGE" != "null" ] && check_installed "$PACKAGE"; then
     if ! [ "$2" == "" ]; then
       echo "$2已安装"
     fi
   else
     if [ "$2" == "" ]; then
-      echo "安装$1"
+      echo "安装$PACKAGE"
     else
       echo "安装$2"
     fi
-    sudo ${apt_command} install -y "$1"
+    if [ "$PACKAGE" != "null" ] ; then
+      sudo $PM_COMMAND "$(echo "$PACKAGES" | jq .$PACKAGE_MANAGER."$1" | tr -d '"')"
+    fi
   fi
 }
 
-if ! [ -e /usr/bin/apt ] ; then
-  dialog --msgbox "目前本脚本只能在 debian 系列 (deepin、ubuntu、mint等)发行版中运行" 10 32
+if [ -e /usr/bin/apt ]; then
+  PACKAGE_MANAGER="apt"
+  decide_apt_command
+elif [ -e /usr/bin/pacman ]; then
+  PACKAGE_MANAGER="pacman"
+  PM_COMMAND="/usr/bin/pacman -S --noconfirm"
+else
+  dialog --msgbox "目前本脚本只能在 debian 系 (deepin、ubuntu、mint等) 和 arch 系 (manjaro、asahi等) 发行版中运行" 10 32
   clear
-  echo "目前本脚本只能在 debian 系列 (deepin、ubuntu、mint等)发行版中运行"
+  echo "目前本脚本只能在 debian 系 (deepin、ubuntu、mint等) 和 arch 系 (manjaro、asahi等) 发行版中运行"
   exit
 fi
 
-
-decide_apt_command
+check_and_install jq 'json解析工具'
 
 # 先确保dialog、unzip和curl已安装
 check_and_install unzip ''
 check_and_install dialog ''
 check_and_install curl ''
 
-if ! check_installed fcitx5 || [ "$GTK_IM_MODULE" != "fcitx" ] ; then
+if ! [ -e /usr/bin/fcitx5 ] || [ "$GTK_IM_MODULE" != "fcitx" ]; then
   dialog --msgbox "本脚本只针对Fcitx5进行优化，而您使用的输入法是[$GTK_IM_MODULE]，请确认后重试" 10 32
   exit
 fi
 
 FLAGS=()
-for i in {0..22}
-do
+for i in {0..22}; do
   FLAGS+=('off')
 done
 
@@ -188,30 +231,31 @@ if [ "$1" == "recommend" ]; then
 fi
 
 # 弹出主选框
-OPTIONS=$(dialog --stdout --checklist "请使用上下方向键移动选项，空格键勾选，回车键确认" 0 0 0 \
-安装搜狗词库 从仓库中安装搜狗词库 "${FLAGS[0]}" \
-导入中文维基词库 导入中文维基词库20230605版 "${FLAGS[1]}" \
-导入精选搜狗细胞词库 导入部分来自搜狗的精选细胞词库 "${FLAGS[2]}" \
-开启云拼音 基于百度的云拼音，默认在第二个候选词位置 "${FLAGS[3]}" \
-竖排显示 不勾选则为横向显示候选词 "${FLAGS[4]}" \
-修改候选词数量 进入候选词数量选择页面 "${FLAGS[5]}" \
-修改字体大小 进入输入法字体大小选择页面 "${FLAGS[6]}" \
-修改默认加减号翻页 快速输入时生效，默认为上下方向键 "${FLAGS[7]}" \
-关闭预编辑 关闭在程序中显示输入中的拼音功能 "${FLAGS[8]}" \
-开启数字键盘选词 使用数字小键盘选词 "${FLAGS[9]}" \
-禁用不常用快捷键 切换简繁体、剪切板、Unicode输入等 "${FLAGS[10]}" \
-优化中文标点 解决方括号输入问题 "${FLAGS[11]}" \
-配置快速输入 按v键快速输入特殊符号及函数 "${FLAGS[12]}" \
-安装Emoji支持组件 可以显示彩色Emoji表情 "${FLAGS[13]}" \
-大写时关闭拼音输入 输入大写字母时临时禁用输入法 "${FLAGS[14]}" \
-安装皮肤-星空黑 DebuggerX转换的搜狗主题 "${FLAGS[15]}" \
-安装皮肤-breeze 与KDE默认的Breeze主题匹配的外观 "${FLAGS[16]}" \
-安装皮肤-material-color 谷歌MD风格的主题 "${FLAGS[17]}" \
-安装皮肤-nord 'Nord主题(北极蓝)' "${FLAGS[18]}" \
-安装皮肤-solarized 'Solarized主题(暗青)' "${FLAGS[19]}" \
-'安装皮肤-简约黑/白' 'Maicss专为深度制作的主题' "${FLAGS[20]}" \
-安装皮肤-dracula 'drbbr制作的德古拉主题' "${FLAGS[21]}" \
-选择皮肤 "进入皮肤选择页面" "${FLAGS[22]}" \
+OPTIONS=$(
+  dialog --stdout --checklist "请使用上下方向键移动选项，空格键勾选，回车键确认" 0 0 0 \
+    安装搜狗词库 从仓库中安装搜狗词库 "${FLAGS[0]}" \
+    导入中文维基词库 导入中文维基词库20230605版 "${FLAGS[1]}" \
+    导入精选搜狗细胞词库 导入部分来自搜狗的精选细胞词库 "${FLAGS[2]}" \
+    开启云拼音 基于百度的云拼音，默认在第二个候选词位置 "${FLAGS[3]}" \
+    竖排显示 不勾选则为横向显示候选词 "${FLAGS[4]}" \
+    修改候选词数量 进入候选词数量选择页面 "${FLAGS[5]}" \
+    修改字体大小 进入输入法字体大小选择页面 "${FLAGS[6]}" \
+    修改默认加减号翻页 快速输入时生效，默认为上下方向键 "${FLAGS[7]}" \
+    关闭预编辑 关闭在程序中显示输入中的拼音功能 "${FLAGS[8]}" \
+    开启数字键盘选词 使用数字小键盘选词 "${FLAGS[9]}" \
+    禁用不常用快捷键 切换简繁体、剪切板、Unicode输入等 "${FLAGS[10]}" \
+    优化中文标点 解决方括号输入问题 "${FLAGS[11]}" \
+    配置快速输入 按v键快速输入特殊符号及函数 "${FLAGS[12]}" \
+    安装Emoji支持组件 可以显示彩色Emoji表情 "${FLAGS[13]}" \
+    大写时关闭拼音输入 输入大写字母时临时禁用输入法 "${FLAGS[14]}" \
+    安装皮肤-星空黑 DebuggerX转换的搜狗主题 "${FLAGS[15]}" \
+    安装皮肤-breeze 与KDE默认的Breeze主题匹配的外观 "${FLAGS[16]}" \
+    安装皮肤-material-color 谷歌MD风格的主题 "${FLAGS[17]}" \
+    安装皮肤-nord 'Nord主题(北极蓝)' "${FLAGS[18]}" \
+    安装皮肤-solarized 'Solarized主题(暗青)' "${FLAGS[19]}" \
+    '安装皮肤-简约黑/白' 'Maicss专为深度制作的主题' "${FLAGS[20]}" \
+    安装皮肤-dracula 'drbbr制作的德古拉主题' "${FLAGS[21]}" \
+    选择皮肤 "进入皮肤选择页面" "${FLAGS[22]}"
 )
 
 clear
@@ -231,10 +275,10 @@ SKIN_SELECT=false
 # 先退出Fcitx，避免修改的配置被运行中的进程恢复
 fcitx5-remote -e
 
-for OPTION in $OPTIONS ; do
+for OPTION in $OPTIONS; do
   case $OPTION in
   安装搜狗词库)
-    check_and_install fcitx5-pinyin-sougou "搜狗词库"
+    check_and_install sougou_dict "搜狗词库"
     ;;
   导入中文维基词库)
     download_and_unzip 'zhwiki.zip' '中文维基词库' ~/.local/share/fcitx5/pinyin/dictionaries
@@ -245,7 +289,7 @@ for OPTION in $OPTIONS ; do
     rm -r ~/.local/share/fcitx5/pinyin/dictionaries/sogou_dict
     ;;
   开启云拼音)
-    check_and_install fcitx5-module-cloudpinyin "云拼音组件"
+    check_and_install cloudpinyin "云拼音组件"
     change_config 'CloudPinyinEnabled' 'True' ~/.config/fcitx5/conf/pinyin.conf
     change_config 'MinimumPinyinLength' '2' ~/.config/fcitx5/conf/cloudpinyin.conf
     change_config 'Backend' 'Baidu' ~/.config/fcitx5/conf/cloudpinyin.conf
@@ -255,10 +299,11 @@ for OPTION in $OPTIONS ; do
     VERTICAL_CANDIDATE_LIST=true
     ;;
   修改候选词数量)
-    SELECTED_INDEX=$(select_from_array '请选择候选词数量' 3 \
-      '5个候选词，建议竖排模式下使用' \
-      '7个候选词，这是Fcitx5拼音的默认数量' \
-      '10个候选词，建议横排模式使用' \
+    SELECTED_INDEX=$(
+      select_from_array '请选择候选词数量' 3 \
+        '5个候选词，建议竖排模式下使用' \
+        '7个候选词，这是Fcitx5拼音的默认数量' \
+        '10个候选词，建议横排模式使用'
     )
 
     clear
@@ -267,25 +312,26 @@ for OPTION in $OPTIONS ; do
       PAGE_SIZES=(5 7 10)
       PAGE_SIZE=${PAGE_SIZES[$SELECTED_INDEX]}
       # 设置候选词数量，同时修改默认候选词数量和拼音候选词数量
-      if ! ([ -e ~/.config/fcitx5/config ] && < ~/.config/fcitx5/config grep -q "Behavior"); then
-        echo -e '[Behavior]\n' >> ~/.config/fcitx5/config
+      if ! ([ -e ~/.config/fcitx5/config ] && grep <~/.config/fcitx5/config -q "Behavior"); then
+        echo -e '[Behavior]\n' >>~/.config/fcitx5/config
       fi
       change_config 'DefaultPageSize' "$PAGE_SIZE" ~/.config/fcitx5/config
       change_config 'PageSize' "$PAGE_SIZE" ~/.config/fcitx5/conf/pinyin.conf
       echo "已设置候选词数量为$PAGE_SIZE"
     fi
-  ;;
+    ;;
   修改字体大小)
-    SELECTED_INDEX=$(select_from_array '请选择字体大小' 2 \
-      '8' \
-      "10(默认大小)" \
-      '12' \
-      '14' \
-      '16' \
-      '18' \
-      '20' \
-      '22' \
-      '24' \
+    SELECTED_INDEX=$(
+      select_from_array '请选择字体大小' 2 \
+        '8' \
+        "10(默认大小)" \
+        '12' \
+        '14' \
+        '16' \
+        '18' \
+        '20' \
+        '22' \
+        '24'
     )
 
     clear
@@ -294,29 +340,29 @@ for OPTION in $OPTIONS ; do
       FONT_SIZES=(8 10 12 14 16 18 20 22 24)
       FONT_SIZE=${FONT_SIZES[$SELECTED_INDEX]}
 
-      if [ -f ~/.config/fcitx5/conf/classicui.conf ] &&  < ~/.config/fcitx5/conf/classicui.conf grep -q "^Font.*" ; then
+      if [ -f ~/.config/fcitx5/conf/classicui.conf ] && grep <~/.config/fcitx5/conf/classicui.conf -q "^Font.*"; then
         sed -i "/^Font.*/{s/[0-9]\{1,2\}/$FONT_SIZE/}" ~/.config/fcitx5/conf/classicui.conf
       else
-        echo "Font=\"Sans $FONT_SIZE\"" >> ~/.config/fcitx5/conf/classicui.conf
+        echo "Font=\"Sans $FONT_SIZE\"" >>~/.config/fcitx5/conf/classicui.conf
       fi
 
       echo "已修改字体大小为$FONT_SIZE"
     fi
-  ;;
+    ;;
   修改默认加减号翻页)
     change_config_next_line "\[Hotkey\/PrevPage\]" "0\=minus" "[Hotkey/PrevPage]\n0=minus" ~/.config/fcitx5/config
     change_config_next_line "\[Hotkey\/NextPage\]" "0\=equal" "[Hotkey/NextPage]\n0=equal" ~/.config/fcitx5/config
     echo '已修改默认加减号翻页'
-  ;;
+    ;;
   关闭预编辑)
     change_config 'PreeditEnabledByDefault' "False" ~/.config/fcitx5/config
     change_config 'PreeditInApplication' "False" ~/.config/fcitx5/conf/pinyin.conf
     echo '已关闭预编辑'
-  ;;
+    ;;
   开启数字键盘选词)
     change_config 'UseKeypadAsSelection' "False" ~/.config/fcitx5/conf/pinyin.conf
     echo '已开启数字键盘选词'
-  ;;
+    ;;
   禁用不常用快捷键)
     # 禁用unicode相关快捷键
     change_config 'TriggerKey' "" ~/.config/fcitx5/conf/unicode.conf
@@ -330,42 +376,42 @@ for OPTION in $OPTIONS ; do
     sed -i "s/\[Hotkey\]//" ~/.config/fcitx5/conf/chttrans.conf
     change_config 'Hotkey' '' ~/.config/fcitx5/conf/chttrans.conf
     # 剪切板
-    echo -e 'PastePrimaryKey=\nTriggerKey=' > ~/.config/fcitx5/conf/clipboard.conf
+    echo -e 'PastePrimaryKey=\nTriggerKey=' >~/.config/fcitx5/conf/clipboard.conf
 
     echo '已禁用不常用快捷键'
-  ;;
+    ;;
   优化中文标点)
     download_and_unzip 'punc_zh_CN.zip' '中文标点优化配置' ~/.local/share/fcitx5/punctuation
-  ;;
+    ;;
   配置快速输入)
     download_and_unzip 'symbols.zip' '特殊符号集' ~/.local/share/fcitx5/data/quickphrase.d
     download_and_unzip 'lua.zip' 'lua脚本集' ~/.local/share/fcitx5
-  ;;
+    ;;
   安装Emoji支持组件)
-    check_and_install fcitx5-module-emoji "Emoji支持组件"
-    check_and_install fonts-noto-color-emoji "Emoji字体"
-  ;;
+    check_and_install emoji "Emoji支持组件"
+    check_and_install emoji_font "Emoji字体"
+    ;;
   大写时关闭拼音输入)
     download_and_unzip 'uppercase_addon.zip' '大写时关闭拼音输入插件' ~/.local/share/fcitx5
-    mv ~/.local/share/fcitx5/uppercase_addon/* ~/.local/share/fcitx5
+    cp -rn ~/.local/share/fcitx5/uppercase_addon/* ~/.local/share/fcitx5
     rm -r ~/.local/share/fcitx5/uppercase_addon
-    check_and_install fcitx5-module-lua 'lua支持模块'
-    check_and_install liblua5.3-0 'lua运行库'
-  ;;
+    check_and_install lua 'lua支持模块'
+    check_and_install liblua 'lua运行库'
+    ;;
   *星空黑)
     download_and_unzip '星空黑.zip' '皮肤-星空黑' ~/.local/share/fcitx5/themes
     ;;
   *breeze)
-    check_and_install fcitx5-breeze '皮肤-breeze'
+    check_and_install breeze '皮肤-breeze'
     ;;
   *material*)
-    check_and_install fcitx5-material-color '皮肤-material-color'
+    check_and_install material_color '皮肤-material-color'
     ;;
   *nord)
-    check_and_install fcitx5-nord '皮肤-nord'
+    check_and_install nord '皮肤-nord'
     ;;
   *solarized)
-    check_and_install fcitx5-solarized '皮肤-solarized'
+    check_and_install solarized '皮肤-solarized'
     ;;
   *简约黑*)
     download_and_unzip 'Simple-dark.zip' '皮肤-简约黑' ~/.local/share/fcitx5/themes
@@ -393,7 +439,6 @@ else
   echo "已设置候选词为横向显示"
 fi
 
-
 if [ ${#SELECTED_SKIN} -gt 0 ]; then
   change_config 'Theme' "$SELECTED_SKIN" ~/.config/fcitx5/conf/classicui.conf
   echo "已设置皮肤为[$SELECTED_SKIN]"
@@ -406,7 +451,7 @@ RESTART_FLAG=''
 CHECK_COUNT=0
 
 while true; do
-  CHECK_COUNT=$((CHECK_COUNT+1))
+  CHECK_COUNT=$((CHECK_COUNT + 1))
   if [ $CHECK_COUNT -gt 100 ]; then
     break
   fi
