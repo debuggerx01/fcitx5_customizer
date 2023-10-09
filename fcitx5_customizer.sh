@@ -177,7 +177,7 @@ function check_and_install() {
       echo "安装$2"
     fi
     if [ "$PACKAGE" != "null" ] ; then
-      sudo $PM_COMMAND "$(echo "$PACKAGES" | jq .$PACKAGE_MANAGER."$1" | tr -d '"')"
+      sudo $PM_COMMAND "$PACKAGE"
     fi
   fi
 }
