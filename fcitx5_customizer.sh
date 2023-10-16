@@ -2,7 +2,7 @@
 
 #   Copyright 2023 DebuggerX-DEV
 #   Author:     DebuggerX <dx8917312@gmail.com>
-#   Version:    1.0.3
+#   Version:    1.0.4
 
 BASE_URL="https://www.debuggerx.com/fcitx5_customizer/"
 GHPROXY_MIRROR_URL="https://ghproxy.com/https://raw.githubusercontent.com/debuggerx01/fcitx5_customizer/master/docs/"
@@ -80,7 +80,7 @@ function change_config_next_line() {
   if [ -f "$4" ] && grep <"$4" -q "$1"; then
     sed -i "/$1/{n;s/.*/$2/}" "$4"
   else
-    echo -e "$3" >>"$4"
+    sed -i "1s/^/$3\n/" "$4"
   fi
 }
 
@@ -221,13 +221,14 @@ if [ "$1" == "recommend" ]; then
   FLAGS[6]='on'
   FLAGS[7]='on'
   FLAGS[8]='on'
-  FLAGS[10]='on'
+  FLAGS[9]='on'
   FLAGS[11]='on'
   FLAGS[12]='on'
   FLAGS[13]='on'
   FLAGS[14]='on'
   FLAGS[15]='on'
-  FLAGS[22]='on'
+  FLAGS[16]='on'
+  FLAGS[23]='on'
 fi
 
 # 弹出主选框
@@ -240,22 +241,23 @@ OPTIONS=$(
     竖排显示 不勾选则为横向显示候选词 "${FLAGS[4]}" \
     修改候选词数量 进入候选词数量选择页面 "${FLAGS[5]}" \
     修改字体大小 进入输入法字体大小选择页面 "${FLAGS[6]}" \
-    修改默认加减号翻页 快速输入时生效，默认为上下方向键 "${FLAGS[7]}" \
-    关闭预编辑 关闭在程序中显示输入中的拼音功能 "${FLAGS[8]}" \
-    开启数字键盘选词 使用数字小键盘选词 "${FLAGS[9]}" \
-    禁用不常用快捷键 切换简繁体、剪切板、Unicode输入等 "${FLAGS[10]}" \
-    优化中文标点 解决方括号输入问题 "${FLAGS[11]}" \
-    配置快速输入 按v键快速输入特殊符号及函数 "${FLAGS[12]}" \
-    安装Emoji支持组件 可以显示彩色Emoji表情 "${FLAGS[13]}" \
-    大写时关闭拼音输入 输入大写字母时临时禁用输入法 "${FLAGS[14]}" \
-    安装皮肤-星空黑 DebuggerX转换的搜狗主题 "${FLAGS[15]}" \
-    安装皮肤-breeze 与KDE默认的Breeze主题匹配的外观 "${FLAGS[16]}" \
-    安装皮肤-material-color 谷歌MD风格的主题 "${FLAGS[17]}" \
-    安装皮肤-nord 'Nord主题(北极蓝)' "${FLAGS[18]}" \
-    安装皮肤-solarized 'Solarized主题(暗青)' "${FLAGS[19]}" \
-    '安装皮肤-简约黑/白' 'Maicss专为深度制作的主题' "${FLAGS[20]}" \
-    安装皮肤-dracula 'drbbr制作的德古拉主题' "${FLAGS[21]}" \
-    选择皮肤 "进入皮肤选择页面" "${FLAGS[22]}"
+    保持输入法状态 切换程序和窗口后输入法保持不变 "${FLAGS[7]}" \
+    修改默认加减号翻页 快速输入时生效，默认为上下方向键 "${FLAGS[8]}" \
+    关闭预编辑 关闭在程序中显示输入中的拼音功能 "${FLAGS[9]}" \
+    开启数字键盘选词 使用数字小键盘选词 "${FLAGS[10]}" \
+    禁用不常用快捷键 切换简繁体、剪切板、Unicode输入等 "${FLAGS[11]}" \
+    优化中文标点 解决方括号输入问题 "${FLAGS[12]}" \
+    配置快速输入 按v键快速输入特殊符号及函数 "${FLAGS[13]}" \
+    安装Emoji支持组件 可以显示彩色Emoji表情 "${FLAGS[14]}" \
+    大写时关闭拼音输入 输入大写字母时临时禁用输入法 "${FLAGS[15]}" \
+    安装皮肤-星空黑 DebuggerX转换的搜狗主题 "${FLAGS[16]}" \
+    安装皮肤-breeze 与KDE默认的Breeze主题匹配的外观 "${FLAGS[17]}" \
+    安装皮肤-material-color 谷歌MD风格的主题 "${FLAGS[18]}" \
+    安装皮肤-nord 'Nord主题(北极蓝)' "${FLAGS[19]}" \
+    安装皮肤-solarized 'Solarized主题(暗青)' "${FLAGS[20]}" \
+    '安装皮肤-简约黑/白' 'Maicss专为深度制作的主题' "${FLAGS[21]}" \
+    安装皮肤-dracula 'drbbr制作的德古拉主题' "${FLAGS[22]}" \
+    选择皮肤 "进入皮肤选择页面" "${FLAGS[23]}"
 )
 
 clear
@@ -274,6 +276,11 @@ SKIN_SELECT=false
 
 # 先退出Fcitx，避免修改的配置被运行中的进程恢复
 fcitx5-remote -e
+
+# 确保配置文件中有[Behavior]段
+if ! ([ -e ~/.config/fcitx5/config ] && grep <~/.config/fcitx5/config -q "Behavior"); then
+  echo -e '[Behavior]\n' >>~/.config/fcitx5/config
+fi
 
 for OPTION in $OPTIONS; do
   case $OPTION in
@@ -312,9 +319,6 @@ for OPTION in $OPTIONS; do
       PAGE_SIZES=(5 7 10)
       PAGE_SIZE=${PAGE_SIZES[$SELECTED_INDEX]}
       # 设置候选词数量，同时修改默认候选词数量和拼音候选词数量
-      if ! ([ -e ~/.config/fcitx5/config ] && grep <~/.config/fcitx5/config -q "Behavior"); then
-        echo -e '[Behavior]\n' >>~/.config/fcitx5/config
-      fi
       change_config 'DefaultPageSize' "$PAGE_SIZE" ~/.config/fcitx5/config
       change_config 'PageSize' "$PAGE_SIZE" ~/.config/fcitx5/conf/pinyin.conf
       echo "已设置候选词数量为$PAGE_SIZE"
@@ -348,6 +352,10 @@ for OPTION in $OPTIONS; do
 
       echo "已修改字体大小为$FONT_SIZE"
     fi
+    ;;
+  保持输入法状态)
+    change_config 'ShareInputState' "All" ~/.config/fcitx5/config
+    echo '已设置保持输入法状态'
     ;;
   修改默认加减号翻页)
     change_config_next_line "\[Hotkey\/PrevPage\]" "0\=minus" "[Hotkey/PrevPage]\n0=minus" ~/.config/fcitx5/config
