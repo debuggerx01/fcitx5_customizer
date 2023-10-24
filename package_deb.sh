@@ -12,6 +12,8 @@ mkdir "deb_builder"
 cp -r debian deb_builder/DEBIAN
 chmod -R 755 deb_builder/DEBIAN
 
+cp ./LICENSE deb_builder/DEBIAN/copyright
+
 echo "设置版本号为: $VERSION"
 
 echo Version: "$VERSION" >> deb_builder/DEBIAN/control
