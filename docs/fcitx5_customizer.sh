@@ -192,11 +192,22 @@ function check_and_install() {
 function download_scel_and_convert() {
   local SCEL_DOWNLOAD_URL="$SOGOU_SCEL_DOWNLOAD_URL?id=$1&name=$2"
   echo "开始下载$2[$SCEL_DOWNLOAD_URL]"
-  if curl --fail -o /tmp/"$2.scel" "$SCEL_DOWNLOAD_URL"; then
+  local TIMES=0
+  while [ $TIMES -lt 5 ]; do
+    curl -o /tmp/"$2.scel" "$SCEL_DOWNLOAD_URL"
+    if [ -s /tmp/"$2.scel" ] && [ $(wc -c < /tmp/"$2.scel") -le 100 ]; then
+      ((TIMES++))
+      echo "重试下载[第$TIMES次]$2[$SCEL_DOWNLOAD_URL]"
+    else
+      TIMES=5
+    fi
+  done
+
+  if [ -s /tmp/"$2.scel" ] && [ $(wc -c < /tmp/"$2.scel") -le 100 ]; then
+    echo "[$2]下载失败"
+  else
     scel2org5 /tmp/"$2.scel" -o /tmp/"$2.org"
     libime_pinyindict /tmp/"$2.org" /tmp/sogou_dict/"$2.dict"
-  else
-    echo "[$2]下载失败"
   fi
 }
 
