@@ -27,7 +27,9 @@ read -r -d '' PACKAGES << EOJSON
     "breeze": "fcitx5-breeze",
     "material_color": "fcitx5-material-color",
     "nord": "fcitx5-nord",
-    "solarized": "fcitx5-solarized"
+    "solarized": "fcitx5-solarized",
+    "fcitx5_chinese_addons": "fcitx5-chinese-addons",
+    "libime": "libime-bin"
   },
   "pacman": {
     "curl": "curl",
@@ -37,7 +39,9 @@ read -r -d '' PACKAGES << EOJSON
     "lua": "fcitx5-lua",
     "breeze": "fcitx5-breeze",
     "material_color": "fcitx5-material-color",
-    "nord": "fcitx5-nord"
+    "nord": "fcitx5-nord",
+    "fcitx5_chinese_addons": "fcitx5-chinese-addons",
+    "libime": "libime"
   }
 }
 EOJSON
@@ -199,6 +203,8 @@ function download_scel_and_convert() {
 function import_sogou_scel_dict() {
   # 确保 scel2org5 已安装
   check_and_install fcitx5-chinese-addons
+  # 确保 libime_pinyindict 已安装
+  check_and_install libime
 
   mkdir -p /tmp/sogou_dict/
   download_scel_and_convert 15127 "财经金融词汇大全【官方推荐】"
