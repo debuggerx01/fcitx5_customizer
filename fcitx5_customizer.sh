@@ -202,7 +202,7 @@ function download_scel_and_convert() {
 
 function import_sogou_scel_dict() {
   # 确保 scel2org5 已安装
-  check_and_install fcitx5-chinese-addons
+  check_and_install fcitx5_chinese_addons
   # 确保 libime_pinyindict 已安装
   check_and_install libime
 
