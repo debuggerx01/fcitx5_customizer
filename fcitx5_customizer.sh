@@ -229,6 +229,7 @@ function import_sogou_scel_dict() {
   download_scel_and_convert 22421 "政府机关团体机构大全【官方推荐】"
   download_scel_and_convert 15130 "中国历史词汇大全【官方推荐】"
 
+  mkdir -p ~/.local/share/fcitx5/pinyin/dictionaries
   mv /tmp/sogou_dict/* ~/.local/share/fcitx5/pinyin/dictionaries
 }
 
