@@ -2,10 +2,11 @@
 
 #   Copyright 2023 DebuggerX-DEV
 #   Author:     DebuggerX <dx8917312@gmail.com>
-#   Version:    1.0.4
+#   Version:    1.0.5
 
 BASE_URL="https://www.debuggerx.com/fcitx5_customizer/"
 GHPROXY_MIRROR_URL="https://ghproxy.com/https://raw.githubusercontent.com/debuggerx01/fcitx5_customizer/master/docs/"
+SOGOU_SCEL_DOWNLOAD_URL="https://pinyin.sogou.com/d/dict/download_cell.php"
 SELECTED_SKIN=''
 
 PM_COMMAND=''
@@ -182,6 +183,38 @@ function check_and_install() {
   fi
 }
 
+# 从搜狗细胞词库官网下载细胞词库文件，并转换为Fcitx5可用的dict词库文件
+# params: <细胞词库id> <细胞词库名称>
+function download_scel_and_convert() {
+  local SCEL_DOWNLOAD_URL="$SOGOU_SCEL_DOWNLOAD_URL?id=$1&name=$2"
+  echo "开始下载$2[$SCEL_DOWNLOAD_URL]"
+  if curl --fail -o /tmp/"$2.scel" "$SCEL_DOWNLOAD_URL"; then
+    scel2org5 /tmp/"$2.scel" -o /tmp/"$2.org"
+    libime_pinyindict /tmp/"$2.org" /tmp/sogou_dict/"$2.dict"
+  else
+    echo "[$2]下载失败"
+  fi
+}
+
+function import_sogou_scel_dict() {
+  # 确保 scel2org5 已安装
+  check_and_install fcitx5-chinese-addons
+
+  mkdir -p /tmp/sogou_dict/
+  download_scel_and_convert 15127 "财经金融词汇大全【官方推荐】"
+  download_scel_and_convert 15128 "法律词汇大全【官方推荐】"
+  download_scel_and_convert 2 "古诗词名句【官方推荐】"
+  download_scel_and_convert 15126 "机械词汇大全【官方推荐】"
+  download_scel_and_convert 15117 "计算机词汇大全【官方推荐】"
+  download_scel_and_convert 15118 "建筑词汇大全【官方推荐】"
+  download_scel_and_convert 15149 "农业词汇大全【官方推荐】"
+  download_scel_and_convert 15125 "医学词汇大全【官方推荐】"
+  download_scel_and_convert 22421 "政府机关团体机构大全【官方推荐】"
+  download_scel_and_convert 15130 "中国历史词汇大全【官方推荐】"
+
+  mv /tmp/sogou_dict/* ~/.local/share/fcitx5/pinyin/dictionaries
+}
+
 if [ -e /usr/bin/apt ]; then
   PACKAGE_MANAGER="apt"
   decide_apt_command
@@ -291,9 +324,7 @@ for OPTION in $OPTIONS; do
     download_and_unzip 'zhwiki.zip' '中文维基词库' ~/.local/share/fcitx5/pinyin/dictionaries
     ;;
   导入精选搜狗细胞词库)
-    download_and_unzip 'sogou_dict.zip' '精选搜狗细胞词库' ~/.local/share/fcitx5/pinyin/dictionaries
-    mv ~/.local/share/fcitx5/pinyin/dictionaries/sogou_dict/* ~/.local/share/fcitx5/pinyin/dictionaries
-    rm -r ~/.local/share/fcitx5/pinyin/dictionaries/sogou_dict
+    import_sogou_scel_dict
     ;;
   开启云拼音)
     check_and_install cloudpinyin "云拼音组件"
