@@ -24,6 +24,7 @@ read -r -d '' PACKAGES << EOJSON
     "emoji_font": "fonts-noto-color-emoji",
     "lua": "fcitx5-module-lua",
     "liblua": "liblua5.3-0",
+    "liblua_dev": "lliblua5.3-dev",
     "breeze": "fcitx5-breeze",
     "material_color": "fcitx5-material-color",
     "nord": "fcitx5-nord",
@@ -454,6 +455,7 @@ for OPTION in $OPTIONS; do
     rm -r ~/.local/share/fcitx5/uppercase_addon
     check_and_install lua 'lua支持模块'
     check_and_install liblua 'lua运行库'
+    check_and_install liblua_dev 'lua支持库'
     ;;
   *星空黑)
     download_and_unzip '星空黑.zip' '皮肤-星空黑' ~/.local/share/fcitx5/themes
