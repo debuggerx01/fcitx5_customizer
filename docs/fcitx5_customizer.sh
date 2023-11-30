@@ -454,6 +454,10 @@ for OPTION in $OPTIONS; do
     rm -r ~/.local/share/fcitx5/uppercase_addon
     check_and_install lua 'lua支持模块'
     check_and_install liblua 'lua运行库'
+    if [ -e "/usr/lib/x86_64-linux-gnu/liblua5.3.so.0.0.0" ] && [ ! -e "/usr/lib/x86_64-linux-gnu/liblua5.3.so" ]; then
+      echo '修复lua动态库链接丢失问题'
+      sudo ln -s /usr/lib/x86_64-linux-gnu/liblua5.3.so.0.0.0 /usr/lib/x86_64-linux-gnu/liblua5.3.so
+    fi
     ;;
   *星空黑)
     download_and_unzip '星空黑.zip' '皮肤-星空黑' ~/.local/share/fcitx5/themes
