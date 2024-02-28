@@ -2,10 +2,10 @@
 
 #   Copyright 2023 DebuggerX-DEV
 #   Author:     DebuggerX <dx8917312@gmail.com>
-#   Version:    1.0.5
+#   Version:    1.0.6
 
 BASE_URL="https://www.debuggerx.com/fcitx5_customizer/"
-GHPROXY_MIRROR_URL="https://ghproxy.com/https://raw.githubusercontent.com/debuggerx01/fcitx5_customizer/master/docs/"
+GHPROXY_MIRROR_URL="https://mirror.ghproxy.com/https://raw.githubusercontent.com/debuggerx01/fcitx5_customizer/master/docs/"
 SOGOU_SCEL_DOWNLOAD_URL="https://pinyin.sogou.com/d/dict/download_cell.php"
 SELECTED_SKIN=''
 
