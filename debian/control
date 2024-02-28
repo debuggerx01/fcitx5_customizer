@@ -5,5 +5,5 @@ Maintainer: DebuggerX <dx8913712@163.com>
 Homepage: https://github.com/debuggerx01/fcitx5_customizer
 Package: com.debuggerx.fcitx5-customizer
 Architecture: all
-Depends: curl
+Depends: curl, dialog, unzip
 Description: fcitx5_customizer —— 一个针对 Fcitx5 的优化脚本，力求更符合简中用户的使用习惯
