@@ -22,7 +22,7 @@ curl -sSL https://www.debuggerx.com/fcitx5_customizer/fcitx5_customizer.sh | bas
 # 适配情况
 - debian系(deepin、ubuntu、mint等)，完全适配
 - arch系(manjaro、asahi等)，部分词库和皮肤未适配
-- fedora，由于默认源中不包含任何 Fcitx5 皮肤包，故只有脚本内置的 "星空黑" 皮肤可用
+- fedora，由于默认源中不包含任何 Fcitx5 皮肤包，故只有脚本内置的 "星空黑"、"简约黑/白" 和 "dracula" 皮肤可用
 
 # 可能遇到的问题
 ## curl未找到命令
