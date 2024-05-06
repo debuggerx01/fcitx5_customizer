@@ -2,7 +2,7 @@
 
 #   Copyright 2023 DebuggerX-DEV
 #   Author:     DebuggerX <dx8917312@gmail.com>
-#   Version:    1.0.6
+#   Version:    1.0.7
 
 BASE_URL="https://www.debuggerx.com/fcitx5_customizer/"
 GHPROXY_MIRROR_URL="https://mirror.ghproxy.com/https://raw.githubusercontent.com/debuggerx01/fcitx5_customizer/master/docs/"
@@ -42,6 +42,15 @@ read -r -d '' PACKAGES << EOJSON
     "nord": "fcitx5-nord",
     "fcitx5_chinese_addons": "fcitx5-chinese-addons",
     "libime": "libime"
+  },
+  "dnf": {
+    "curl": "curl",
+    "dialog": "dialog",
+    "unzip": "unzip",
+    "emoji_font": "google-noto-emoji-fonts",
+    "lua": "fcitx5-module-lua",
+    "fcitx5_chinese_addons": "fcitx5-chinese-addons",
+    "libime": "libime-bin"
   }
 }
 EOJSON
@@ -239,10 +248,13 @@ if [ -e /usr/bin/apt ]; then
 elif [ -e /usr/bin/pacman ]; then
   PACKAGE_MANAGER="pacman"
   PM_COMMAND="/usr/bin/pacman -S --noconfirm"
+elif [ -e /usr/bin/dnf ]; then
+  PACKAGE_MANAGER="dnf"
+  PM_COMMAND="/usr/bin/dnf install -y"
 else
-  dialog --msgbox "目前本脚本只能在 debian 系 (deepin、ubuntu、mint等) 和 arch 系 (manjaro、asahi等) 发行版中运行" 10 32
+  dialog --msgbox "目前本脚本只能在 debian 系 (deepin、ubuntu、mint等)、arch 系 (manjaro、asahi等) 和 fedora 发行版中运行" 10 32
   clear
-  echo "目前本脚本只能在 debian 系 (deepin、ubuntu、mint等) 和 arch 系 (manjaro、asahi等) 发行版中运行"
+  echo "目前本脚本只能在 debian 系 (deepin、ubuntu、mint等)、arch 系 (manjaro、asahi等) 和 fedora 发行版中运行"
   exit
 fi
 
