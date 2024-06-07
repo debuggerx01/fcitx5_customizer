@@ -383,7 +383,7 @@ for OPTION in $OPTIONS; do
     ;;
   导入中文维基词库)
     download_and_unzip 'zhwiki.zip' '中文维基词库' ~/.local/share/fcitx5/pinyin/dictionaries
-    libime_pinyindict -d ~/.local/share/fcitx5/pinyin/dictionaries/zhwiki.dict > /dev/null || download_and_unzip 'zhwiki_fallback.zip' '中文维基词库20230823版'
+    libime_pinyindict -d ~/.local/share/fcitx5/pinyin/dictionaries/zhwiki.dict /tmp/test_zhwiki.txt > /dev/null || download_and_unzip 'zhwiki_fallback.zip' '中文维基词库20230823版' ~/.local/share/fcitx5/pinyin/dictionaries
     ;;
   导入精选搜狗细胞词库)
     import_sogou_scel_dict
