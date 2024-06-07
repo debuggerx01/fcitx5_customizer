@@ -20,15 +20,17 @@ fi
 
 cd ./docs || exit 1
 
-copy_file_and_zip zhwiki-20230823.dict zhwiki.dict zhwiki
+copy_file_and_zip zhwiki-20230823.dict zhwiki.dict zhwiki_fallback
+copy_file_and_zip zhwiki-20240509.dict zhwiki.dict zhwiki
 copy_file_and_zip symbols.mb symbols.mb symbols
 copy_file_and_zip punc.mb.zh_CN punc.mb.zh_CN punc_zh_CN
+copy_file_and_zip punc.mb.zh_CN_plus punc.mb.zh_CN punc_zh_CN_plus
 copy_dir_and_zip 星空黑
 copy_dir_and_zip dracula
 copy_dir_and_zip Simple-dark
 copy_dir_and_zip Simple-white
-copy_dir_and_zip sogou_dict
 copy_dir_and_zip uppercase_addon
 copy_dir_and_zip lua
 
+cp ../assets/logo.png ./logo.png
 cp ../fcitx5_customizer.sh ./fcitx5_customizer.sh

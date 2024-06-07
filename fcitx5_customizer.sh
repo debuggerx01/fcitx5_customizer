@@ -2,7 +2,7 @@
 
 #   Copyright 2023 DebuggerX-DEV
 #   Author:     DebuggerX <dx8917312@gmail.com>
-#   Version:    1.0.7
+#   Version:    1.0.8
 
 BASE_URL="https://www.debuggerx.com/fcitx5_customizer/"
 GHPROXY_MIRROR_URL="https://mirror.ghproxy.com/https://raw.githubusercontent.com/debuggerx01/fcitx5_customizer/master/docs/"
@@ -242,6 +242,32 @@ function import_sogou_scel_dict() {
   mv /tmp/sogou_dict/* ~/.local/share/fcitx5/pinyin/dictionaries
 }
 
+function restart_fcitx5() {
+  echo "配置完成，正在重启Fcitx5"
+  fcitx5 -rd >/dev/null 2>&1 &
+
+  RESTART_FLAG=''
+  CHECK_COUNT=0
+
+  while true; do
+    CHECK_COUNT=$((CHECK_COUNT + 1))
+    if [ $CHECK_COUNT -gt 100 ]; then
+      break
+    fi
+    if [ "$RESTART_FLAG" == "Failed to get reply." ]; then
+      if [ "$(fcitx5-remote 2>&1)" != "Failed to get reply." ]; then
+        break
+      fi
+    else
+      RESTART_FLAG=$(fcitx5-remote 2>&1)
+    fi
+
+    sleep 0.2
+  done
+
+  echo "重启完成"
+}
+
 if [ -e /usr/bin/apt ]; then
   PACKAGE_MANAGER="apt"
   decide_apt_command
@@ -286,19 +312,19 @@ if [ "$1" == "recommend" ]; then
   FLAGS[8]='on'
   FLAGS[9]='on'
   FLAGS[11]='on'
-  FLAGS[12]='on'
   FLAGS[13]='on'
   FLAGS[14]='on'
   FLAGS[15]='on'
   FLAGS[16]='on'
-  FLAGS[23]='on'
+  FLAGS[17]='on'
+  FLAGS[24]='on'
 fi
 
 # 弹出主选框
 OPTIONS=$(
   dialog --stdout --checklist "请使用上下方向键移动选项，空格键勾选，回车键确认" 0 0 0 \
     安装搜狗词库 从仓库中安装搜狗词库 "${FLAGS[0]}" \
-    导入中文维基词库 导入中文维基词库20230605版 "${FLAGS[1]}" \
+    导入中文维基词库 导入中文维基词库20240509版 "${FLAGS[1]}" \
     导入精选搜狗细胞词库 导入部分来自搜狗的精选细胞词库 "${FLAGS[2]}" \
     开启云拼音 基于百度的云拼音，默认在第二个候选词位置 "${FLAGS[3]}" \
     竖排显示 不勾选则为横向显示候选词 "${FLAGS[4]}" \
@@ -309,18 +335,20 @@ OPTIONS=$(
     关闭预编辑 关闭在程序中显示输入中的拼音功能 "${FLAGS[9]}" \
     开启数字键盘选词 使用数字小键盘选词 "${FLAGS[10]}" \
     禁用不常用快捷键 切换简繁体、剪切板、Unicode输入等 "${FLAGS[11]}" \
-    优化中文标点 解决方括号输入问题 "${FLAGS[12]}" \
-    配置快速输入 按v键快速输入特殊符号及函数 "${FLAGS[13]}" \
-    安装Emoji支持组件 可以显示彩色Emoji表情 "${FLAGS[14]}" \
-    大写时关闭拼音输入 输入大写字母时临时禁用输入法 "${FLAGS[15]}" \
-    安装皮肤-星空黑 DebuggerX转换的搜狗主题 "${FLAGS[16]}" \
-    安装皮肤-breeze 与KDE默认的Breeze主题匹配的外观 "${FLAGS[17]}" \
-    安装皮肤-material-color 谷歌MD风格的主题 "${FLAGS[18]}" \
-    安装皮肤-nord 'Nord主题(北极蓝)' "${FLAGS[19]}" \
-    安装皮肤-solarized 'Solarized主题(暗青)' "${FLAGS[20]}" \
-    '安装皮肤-简约黑/白' 'Maicss专为深度制作的主题' "${FLAGS[21]}" \
-    安装皮肤-dracula 'drbbr制作的德古拉主题' "${FLAGS[22]}" \
-    选择皮肤 "进入皮肤选择页面" "${FLAGS[23]}"
+    优化中文标点1 解决方括号输入问题 "${FLAGS[12]}" \
+    优化中文标点2 "优化方括号并将\`键映射为·" "${FLAGS[13]}" \
+    配置快速输入 按v键快速输入特殊符号及函数 "${FLAGS[14]}" \
+    安装Emoji支持组件 可以显示彩色Emoji表情 "${FLAGS[15]}" \
+    大写时关闭拼音输入 输入大写字母时临时禁用输入法 "${FLAGS[16]}" \
+    安装皮肤-星空黑 DebuggerX转换的搜狗主题 "${FLAGS[17]}" \
+    安装皮肤-breeze 与KDE默认的Breeze主题匹配的外观 "${FLAGS[18]}" \
+    安装皮肤-material-color 谷歌MD风格的主题 "${FLAGS[19]}" \
+    安装皮肤-nord 'Nord主题(北极蓝)' "${FLAGS[20]}" \
+    安装皮肤-solarized 'Solarized主题(暗青)' "${FLAGS[21]}" \
+    '安装皮肤-简约黑/白' 'Maicss专为深度制作的主题' "${FLAGS[22]}" \
+    安装皮肤-dracula 'drbbr制作的德古拉主题' "${FLAGS[23]}" \
+    选择皮肤 "进入皮肤选择页面" "${FLAGS[24]}" \
+    重置输入法 "清空输入法配置" "${FLAGS[25]}"
 )
 
 clear
@@ -329,6 +357,9 @@ if [ ${#OPTIONS} == 0 ]; then
   echo '无事可做，退出脚本。'
   exit 0
 fi
+
+# 重置输入法
+IM_RESET=false
 
 # 默认为非竖排
 VERTICAL_CANDIDATE_LIST=false
@@ -352,6 +383,7 @@ for OPTION in $OPTIONS; do
     ;;
   导入中文维基词库)
     download_and_unzip 'zhwiki.zip' '中文维基词库' ~/.local/share/fcitx5/pinyin/dictionaries
+    libime_pinyindict -d ~/.local/share/fcitx5/pinyin/dictionaries/zhwiki.dict > /dev/null || download_and_unzip 'zhwiki_fallback.zip' '中文维基词库20230823版'
     ;;
   导入精选搜狗细胞词库)
     import_sogou_scel_dict
@@ -449,8 +481,11 @@ for OPTION in $OPTIONS; do
 
     echo '已禁用不常用快捷键'
     ;;
-  优化中文标点)
-    download_and_unzip 'punc_zh_CN.zip' '中文标点优化配置' ~/.local/share/fcitx5/punctuation
+  优化中文标点1)
+    download_and_unzip 'punc_zh_CN.zip' '中文标点优化配置1' ~/.local/share/fcitx5/punctuation
+    ;;
+  优化中文标点2)
+    download_and_unzip 'punc_zh_CN_plus.zip' '中文标点优化配置2' ~/.local/share/fcitx5/punctuation
     ;;
   配置快速输入)
     download_and_unzip 'symbols.zip' '特殊符号集' ~/.local/share/fcitx5/data/quickphrase.d
@@ -496,8 +531,19 @@ for OPTION in $OPTIONS; do
   选择皮肤)
     SKIN_SELECT=true
     ;;
+  重置输入法)
+    IM_RESET=true
+    ;;
   esac
 done
+
+if $IM_RESET; then
+  rm -rf ~/.config/fcitx5/
+  rm -rf ~/.local/share/fcitx5/
+
+  restart_fcitx5
+  exit 0
+fi
 
 if $SKIN_SELECT; then
   select_skin
@@ -517,26 +563,4 @@ if [ ${#SELECTED_SKIN} -gt 0 ]; then
   echo "已设置皮肤为[$SELECTED_SKIN]"
 fi
 
-echo "配置完成，正在重启Fcitx5"
-fcitx5 -rd >/dev/null 2>&1 &
-
-RESTART_FLAG=''
-CHECK_COUNT=0
-
-while true; do
-  CHECK_COUNT=$((CHECK_COUNT + 1))
-  if [ $CHECK_COUNT -gt 100 ]; then
-    break
-  fi
-  if [ "$RESTART_FLAG" == "Failed to get reply." ]; then
-    if [ "$(fcitx5-remote 2>&1)" != "Failed to get reply." ]; then
-      break
-    fi
-  else
-    RESTART_FLAG=$(fcitx5-remote 2>&1)
-  fi
-
-  sleep 0.2
-done
-
-echo "重启完成"
+restart_fcitx5

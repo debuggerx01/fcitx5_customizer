@@ -32,6 +32,9 @@ curl -sSL https://www.debuggerx.com/fcitx5_customizer/fcitx5_customizer.sh | bas
 有一种情况是，当使用系统自带的输入法切换器将系统的输入法切换为 Fcitx5 时，虽然看上去已经切换成功并且输入法已经可以正常使用，但是系统的环境变量还没有及时刷新，所以脚本还是会认为系统输入法不是 Fcitx5。此时只要注销或重启一次系统，再次执行优化命令即可正确识别。
 如果使用的是 Fedora，建议安装 fcitx5-autostart 包，参考：[设置 Fcitx 5 - fcitx5-autostart (Fedora)](https://fcitx-im.org/wiki/Setup_Fcitx_5/zh-cn#fcitx5-autostart_.28Fedora.29)
 
+# 恢复默认设置
+如果优化脚本导致了输入法异常，可以再次运行脚本，并勾选最后一项的“重置输入法”，脚本将清空当前用户的fcitx5配置目录。如果仍然存在异常，请尝试重新安装输入法。
+
 # 鸣谢
 - [shenmo](https://github.com/shenmo7192) - [#1](https://github.com/debuggerx01/fcitx5_customizer/pull/1)
 
