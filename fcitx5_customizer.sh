@@ -100,22 +100,8 @@ function change_config_next_line() {
 
 # params: <zip包名> <中文名> <解压路径>
 function download_and_unzip() {
-  echo "开始下载$2[$BASE_URL$1]"
-  curl -o /tmp/"$1" "$BASE_URL$1"
-  if unzip -z /tmp/"$1"; then
-    echo "$2下载成功"
-  else
-    echo "重试下载$2[$GHPROXY_MIRROR_URL$1]"
-    curl -o /tmp/"$1" "$GHPROXY_MIRROR_URL$1"
-    if unzip -z /tmp/"$1"; then
-      echo "$2下载成功"
-    else
-      echo "$2下载失败"
-      return 1
-    fi
-  fi
   mkdir -p "$3"
-  yes | unzip -q /tmp/"$1" -d "$3"
+  yes | unzip -q ./docs/"$1" -d "$3"
   echo "$2安装成功"
 }
 
@@ -323,9 +309,7 @@ fi
 # 弹出主选框
 OPTIONS=$(
   dialog --stdout --checklist "请使用上下方向键移动选项，空格键勾选，回车键确认" 0 0 0 \
-    安装搜狗词库 从仓库中安装搜狗词库 "${FLAGS[0]}" \
     导入中文维基词库 导入中文维基词库20240509版 "${FLAGS[1]}" \
-    导入精选搜狗细胞词库 导入部分来自搜狗的精选细胞词库 "${FLAGS[2]}" \
     开启云拼音 基于百度的云拼音，默认在第二个候选词位置 "${FLAGS[3]}" \
     竖排显示 不勾选则为横向显示候选词 "${FLAGS[4]}" \
     修改候选词数量 进入候选词数量选择页面 "${FLAGS[5]}" \
@@ -338,13 +322,7 @@ OPTIONS=$(
     优化中文标点1 解决方括号输入问题 "${FLAGS[12]}" \
     优化中文标点2 "优化方括号并将\`键映射为·" "${FLAGS[13]}" \
     配置快速输入 按v键快速输入特殊符号及函数 "${FLAGS[14]}" \
-    安装Emoji支持组件 可以显示彩色Emoji表情 "${FLAGS[15]}" \
-    大写时关闭拼音输入 输入大写字母时临时禁用输入法 "${FLAGS[16]}" \
     安装皮肤-星空黑 DebuggerX转换的搜狗主题 "${FLAGS[17]}" \
-    安装皮肤-breeze 与KDE默认的Breeze主题匹配的外观 "${FLAGS[18]}" \
-    安装皮肤-material-color 谷歌MD风格的主题 "${FLAGS[19]}" \
-    安装皮肤-nord 'Nord主题(北极蓝)' "${FLAGS[20]}" \
-    安装皮肤-solarized 'Solarized主题(暗青)' "${FLAGS[21]}" \
     '安装皮肤-简约黑/白' 'Maicss专为深度制作的主题' "${FLAGS[22]}" \
     安装皮肤-dracula 'drbbr制作的德古拉主题' "${FLAGS[23]}" \
     选择皮肤 "进入皮肤选择页面" "${FLAGS[24]}" \
