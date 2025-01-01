@@ -2,10 +2,10 @@
 
 #   Copyright 2023 DebuggerX-DEV
 #   Author:     DebuggerX <dx8917312@gmail.com>
-#   Version:    1.0.8
+#   Version:    1.0.9
 
-BASE_URL="https://www.debuggerx.com/fcitx5_customizer/"
-GHPROXY_MIRROR_URL="https://mirror.ghproxy.com/https://raw.githubusercontent.com/debuggerx01/fcitx5_customizer/master/docs/"
+BASE_URL="https://fcitx5.debuggerx.com/"
+FALLBACK_URL="https://www.debuggerx.com/fcitx5_customizer/"
 SOGOU_SCEL_DOWNLOAD_URL="https://pinyin.sogou.com/d/dict/download_cell.php"
 SELECTED_SKIN=''
 
@@ -105,8 +105,8 @@ function download_and_unzip() {
   if unzip -z /tmp/"$1"; then
     echo "$2下载成功"
   else
-    echo "重试下载$2[$GHPROXY_MIRROR_URL$1]"
-    curl -o /tmp/"$1" "$GHPROXY_MIRROR_URL$1"
+    echo "重试下载$2[$FALLBACK_URL$1]"
+    curl -o /tmp/"$1" "$FALLBACK_URL$1"
     if unzip -z /tmp/"$1"; then
       echo "$2下载成功"
     else

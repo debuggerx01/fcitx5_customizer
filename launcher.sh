@@ -32,10 +32,10 @@ CURRENT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 
 case $SELECTED_INDEX in
 0)
-  curl -sSL https://www.debuggerx.com/fcitx5_customizer/fcitx5_customizer.sh | bash -s -- recommend
+  curl -sSL https://fcitx5.debuggerx.com/fcitx5_customizer.sh | bash -s -- recommend
   ;;
 1)
-  bash -c "$(curl -fsSL https://www.debuggerx.com/fcitx5_customizer/fcitx5_customizer.sh)"
+  bash -c "$(curl -fsSL https://fcitx5.debuggerx.com/fcitx5_customizer.sh)"
   ;;
 2)
   bash "$CURRENT_DIR"/fcitx5_customizer.sh recommend
