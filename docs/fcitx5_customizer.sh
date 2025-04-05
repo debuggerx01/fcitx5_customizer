@@ -2,7 +2,7 @@
 
 #   Copyright 2023 DebuggerX-DEV
 #   Author:     DebuggerX <dx8917312@gmail.com>
-#   Version:    1.0.9
+#   Version:    1.1.0
 
 BASE_URL="https://fcitx5.debuggerx.com/"
 FALLBACK_URL="https://www.debuggerx.com/fcitx5_customizer/"
@@ -291,7 +291,7 @@ check_and_install unzip ''
 check_and_install dialog ''
 check_and_install curl ''
 
-if ! [ -e /usr/bin/fcitx5 ] || [ "$GTK_IM_MODULE" != "fcitx" ]; then
+if ! [ -e /usr/bin/fcitx5 ] || ! [[ "${GTK_IM_MODULE:=fcitx}" == fcitx* ]]; then
   dialog --msgbox "本脚本只针对Fcitx5进行优化，而您使用的输入法是[$GTK_IM_MODULE]，请确认后重试" 10 32
   exit
 fi

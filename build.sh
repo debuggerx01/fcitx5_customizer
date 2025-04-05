@@ -21,7 +21,7 @@ fi
 cd ./docs || exit 1
 
 copy_file_and_zip zhwiki-20230823.dict zhwiki.dict zhwiki_fallback
-copy_file_and_zip zhwiki-20240509.dict zhwiki.dict zhwiki
+copy_file_and_zip zhwiki-20250310.dict zhwiki.dict zhwiki
 copy_file_and_zip symbols.mb symbols.mb symbols
 copy_file_and_zip punc.mb.zh_CN punc.mb.zh_CN punc_zh_CN
 copy_file_and_zip punc.mb.zh_CN_plus punc.mb.zh_CN punc_zh_CN_plus
